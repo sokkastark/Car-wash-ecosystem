@@ -28,6 +28,7 @@ function PortalCard({ title, emoji, description, url, colorVar }: PortalCardProp
 export default function HomeRouter() {
   const [baseDomain, setBaseDomain] = useState("aura360studio.com");
   const [isLocal, setIsLocal] = useState(true);
+  const [isVercelApp, setIsVercelApp] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -35,14 +36,24 @@ export default function HomeRouter() {
       if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
         setBaseDomain(window.location.host); // Keep port e.g. "localhost:3000"
         setIsLocal(true);
+        setIsVercelApp(false);
       } else {
         setBaseDomain(hostname);
         setIsLocal(false);
+        setIsVercelApp(hostname.endsWith("vercel.app"));
       }
     }
   }, []);
 
   const getPortalUrl = (sub: string) => {
+    if (isVercelApp) {
+      const pathMap: Record<string, string> = {
+        cwadmin: "/admin",
+        cwworker: "/worker",
+        cwcustomer: "/customer"
+      };
+      return pathMap[sub] || "/";
+    }
     return isLocal ? `http://${sub}.${baseDomain}` : `https://${sub}.${baseDomain}`;
   };
 
