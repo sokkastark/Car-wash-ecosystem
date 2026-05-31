@@ -36,7 +36,7 @@ export default function HomeRouter() {
         setBaseDomain(window.location.host); // Keep port e.g. "localhost:3000"
         setIsLocal(true);
       } else {
-        setBaseDomain("aura360studio.com");
+        setBaseDomain(hostname);
         setIsLocal(false);
       }
     }
