@@ -1,0 +1,309 @@
+/* ==========================================================================
+   🌸 Premium Light-Pastel Glassmorphic Theme Skin (Worker PWA Only)
+   ========================================================================== */
+.worker-theme-wrapper {
+  background: linear-gradient(185deg, #FFF5F5 0%, #FFF9F9 50%, #FAF5FF 100%) !important;
+  color: #1e293b !important;
+  font-family: var(--font-body);
+}
+
+/* Base resets inside the wrapper */
+.worker-theme-wrapper * {
+  box-sizing: border-box;
+}
+
+/* Premium White Cards with extremely soft pinkish/purple shadows */
+.worker-theme-wrapper .worker-premium-card {
+  background: #ffffff !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(225, 120, 180, 0.08) !important;
+  box-shadow: 0 10px 25px -5px rgba(225, 120, 180, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.02) !important;
+  padding: 20px 24px !important;
+  color: #1e293b !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.worker-theme-wrapper .worker-premium-card.clickable {
+  cursor: pointer !important;
+}
+
+.worker-theme-wrapper .worker-premium-card.clickable:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(168, 85, 247, 0.18) !important;
+  box-shadow: 0 14px 28px -4px rgba(168, 85, 247, 0.12), 0 8px 20px -8px rgba(0, 0, 0, 0.03) !important;
+}
+
+.worker-theme-wrapper .worker-premium-card.clickable:active {
+  transform: translateY(0) !important;
+}
+
+/* Overriding normal glass-panels to adopt the premium card styling */
+.worker-theme-wrapper .glass-panel {
+  background: #ffffff !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(225, 120, 180, 0.08) !important;
+  box-shadow: 0 10px 25px -5px rgba(225, 120, 180, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.02) !important;
+  color: #1e293b !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.worker-theme-wrapper .glass-panel:hover {
+  border-color: rgba(168, 85, 247, 0.18) !important;
+  box-shadow: 0 14px 28px -4px rgba(168, 85, 247, 0.12), 0 8px 20px -8px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Sleek Capsule Profile Badge */
+.worker-theme-wrapper .worker-role-badge {
+  background: #F3E8FF !important;
+  color: #8B5CF6 !important;
+  padding: 4px 12px !important;
+  border-radius: 99px !important;
+  font-size: 0.725rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  letter-spacing: 0.05em !important;
+  border: 1px solid rgba(139, 92, 246, 0.1) !important;
+}
+
+/* Beautiful Profile Avatars with Circular Gradients */
+.worker-theme-wrapper .worker-avatar-large {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B99, #A855F7, #6366F1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.75rem;
+  color: white;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.22);
+  border: 3px solid #FFFFFF;
+  margin: 0 auto 12px auto;
+  transition: transform 0.3s ease;
+}
+.worker-theme-wrapper .worker-avatar-large:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+
+.worker-theme-wrapper .worker-avatar-small {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B99, #A855F7, #6366F1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  color: white;
+  box-shadow: 0 4px 10px rgba(168, 85, 247, 0.15);
+  border: 2px solid #FFFFFF;
+  flex-shrink: 0;
+}
+
+/* Text & Colors */
+.worker-theme-wrapper h1, 
+.worker-theme-wrapper h2, 
+.worker-theme-wrapper h3, 
+.worker-theme-wrapper strong {
+  color: #0f172a !important;
+}
+.worker-theme-wrapper span, 
+.worker-theme-wrapper p, 
+.worker-theme-wrapper label {
+  color: #475569 !important;
+}
+.worker-theme-wrapper .text-purple {
+  color: #a855f7 !important;
+}
+.worker-theme-wrapper .text-muted-dark {
+  color: #64748b !important;
+}
+
+/* Circular Sound Speaker Button */
+.worker-theme-wrapper .worker-sound-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff !important;
+  border: 1px solid rgba(225, 120, 180, 0.1) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.08);
+  transition: all 0.2s ease;
+  font-size: 1.15rem;
+  color: #a855f7 !important;
+  outline: none;
+}
+.worker-theme-wrapper .worker-sound-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.25) !important;
+}
+.worker-theme-wrapper .worker-sound-btn:active {
+  transform: scale(0.95);
+}
+
+/* Premium Navigation Capsule (Floating bottom PWA nav) */
+.worker-theme-wrapper .worker-floating-nav {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 448px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 10px 30px -5px rgba(225, 120, 180, 0.15), 0 8px 16px -6px rgba(0, 0, 0, 0.03) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  padding: 8px 0 !important;
+}
+
+.worker-theme-wrapper .worker-tab-button {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  color: #64748b !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  font-size: 0.725rem !important;
+  font-weight: 500 !important;
+  transition: all 0.25s ease !important;
+  padding: 6px 16px !important;
+  position: relative !important;
+  flex: 1 !important;
+}
+
+.worker-theme-wrapper .worker-tab-button.active {
+  color: #a855f7 !important;
+  font-weight: 700 !important;
+}
+
+.worker-theme-wrapper .worker-tab-button .active-bar {
+  position: absolute;
+  bottom: -4px;
+  width: 24px;
+  height: 3px;
+  background: #a855f7;
+  border-radius: 99px;
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.worker-theme-wrapper .worker-tab-button.active .active-bar {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Custom premium primary & secondary buttons inside the wrapper */
+.worker-theme-wrapper .btn-primary {
+  background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px 0 rgba(168, 85, 247, 0.3) !important;
+  font-family: var(--font-title);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 28px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.worker-theme-wrapper .btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px 0 rgba(168, 85, 247, 0.45) !important;
+  filter: brightness(1.05) !important;
+}
+.worker-theme-wrapper .btn-primary:active {
+  transform: translateY(0) !important;
+}
+
+.worker-theme-wrapper .btn-secondary {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(225, 120, 180, 0.15) !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  padding: 14px 28px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.worker-theme-wrapper .btn-secondary:hover {
+  background: #ffffff !important;
+  border-color: #a855f7 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 14px rgba(168, 85, 247, 0.08) !important;
+}
+.worker-theme-wrapper .btn-secondary:active {
+  transform: translateY(0) !important;
+}
+
+/* Input Fields & Selector Dropdowns styling inside the wrapper */
+.worker-theme-wrapper select, 
+.worker-theme-wrapper input {
+  background: #ffffff !important;
+  border: 1px solid rgba(225, 120, 180, 0.15) !important;
+  color: #0f172a !important;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+  outline: none !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.01) !important;
+  transition: all 0.2s ease !important;
+}
+.worker-theme-wrapper select:focus, 
+.worker-theme-wrapper input:focus {
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.12) !important;
+}
+
+/* Checklist Details Layout Cards */
+.worker-theme-wrapper .checklist-card-washed {
+  border-left: 6px solid #10b981 !important;
+  background: #ffffff !important;
+}
+.worker-theme-wrapper .checklist-card-skipped {
+  border-left: 6px solid #f59e0b !important;
+  background: #ffffff !important;
+}
+.worker-theme-wrapper .checklist-card-pending {
+  border-left: 6px solid #a855f7 !important;
+  background: #ffffff !important;
+}
+
+.worker-theme-wrapper .status-badge.washed {
+  background: rgba(16, 185, 129, 0.08) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+}
+.worker-theme-wrapper .status-badge.skipped {
+  background: rgba(245, 158, 11, 0.08) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+.worker-theme-wrapper .status-badge.pending {
+  background: rgba(168, 85, 247, 0.08) !important;
+  color: #a855f7 !important;
+  border: 1px solid rgba(168, 85, 247, 0.15) !important;
+}
+
+.worker-theme-wrapper .checklist-card-missed {
+  border-left: 6px solid #64748b !important;
+  background: #ffffff !important;
+}
+.worker-theme-wrapper .status-badge.missed {
+  background: rgba(148, 163, 184, 0.08) !important;
+  color: #64748b !important;
+  border: 1px solid rgba(148, 163, 184, 0.15) !important;
+}

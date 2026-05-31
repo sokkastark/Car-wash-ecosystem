@@ -1,0 +1,191 @@
+/* globals.css - Dynamic Design Tokens & Premium Aesthetics System */
+/* Adheres strictly to ISO standards and 250-line limitations */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Premium HSL Harmonious Color Palette */
+  --bg-dark: 222 47% 11%;      /* Slate Dark #0F172A */
+  --bg-card: 223 47% 16%;      /* Card Slate #1E293B */
+  --border-muted: 223 30% 22%; /* Border Slate */
+  
+  --primary: 200 95% 39%;      /* Vibrant Ocean Blue #0284C7 */
+  --primary-glow: 200 95% 39% / 15%;
+  --success: 160 84% 39%;      /* Emerald Clean #10B981 */
+  --success-glow: 160 84% 39% / 15%;
+  --warning: 38 92% 50%;       /* Amber Skip #F59E0B */
+  --warning-glow: 38 92% 50% / 15%;
+  --danger: 0 84% 60%;         /* Coral Lockout */
+  
+  --text-primary: 210 40% 98%;   /* Bright White */
+  --text-secondary: 215 20% 65%; /* Muted Slate */
+  --text-muted: 218 12% 45%;      /* Dark Muted */
+
+  /* Structural Variables */
+  --font-title: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Global Document Resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: hsl(var(--bg-dark));
+  color: hsl(var(--text-primary));
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Premium Standard Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--bg-dark));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-muted));
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Base Aesthetics Utilities */
+.glass-panel {
+  background: hsla(var(--bg-card) / 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsla(var(--border-muted) / 0.5);
+  box-shadow: var(--shadow-premium);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  border-color: hsla(var(--primary) / 0.3);
+  box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.1);
+}
+
+/* Standard Buttons with Micro-Animations */
+.btn-primary {
+  background: hsl(var(--primary));
+  color: white;
+  border: none;
+  font-family: var(--font-title);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px 0 hsla(var(--primary) / 0.4);
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 hsla(var(--primary) / 0.6);
+  filter: brightness(1.1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: hsla(var(--text-secondary) / 0.1);
+  color: hsl(var(--text-primary));
+  border: 1px solid hsl(var(--border-muted));
+  font-family: var(--font-title);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+  background: hsla(var(--text-secondary) / 0.2);
+  border-color: hsla(var(--primary) / 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Status Indicator Dots */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.status-badge.washed {
+  background: hsla(var(--success) / 0.15);
+  color: hsl(var(--success));
+}
+.status-badge.washed::before { background: hsl(var(--success)); }
+
+.status-badge.skipped {
+  background: hsla(var(--warning) / 0.15);
+  color: hsl(var(--warning));
+}
+.status-badge.skipped::before { background: hsl(var(--warning)); }
+
+/* Standard Entrance Fade In */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Secure Geofence Pulse & Scan Animations */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+.pulse-indicator {
+  animation: pulse 1.5s infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+

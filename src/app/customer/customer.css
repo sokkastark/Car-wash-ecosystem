@@ -1,0 +1,312 @@
+/* ==========================================================================
+   💎 Premium Sky-Blue & Lavender Light Glassmorphic Theme Skin (Customer PWA)
+   ========================================================================== */
+.customer-theme-wrapper {
+  background: linear-gradient(185deg, #F0F6FF 0%, #F5F3FF 50%, #FAF9FF 100%) !important;
+  color: #1e293b !important;
+  font-family: var(--font-body);
+}
+
+/* Glass Panels: Clean, frosted, translucent white cards with extremely soft sky-blue shadows */
+.customer-theme-wrapper .glass-panel {
+  background: #ffffff !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(158, 168, 253, 0.15) !important;
+  box-shadow: 0 10px 30px -5px rgba(158, 168, 253, 0.12), 0 8px 16px -6px rgba(0, 0, 0, 0.02) !important;
+  color: #1e293b !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.customer-theme-wrapper .glass-panel:hover {
+  border-color: rgba(91, 109, 244, 0.25) !important;
+  box-shadow: 0 16px 36px -4px rgba(91, 109, 244, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.03) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Typographic overrides */
+.customer-theme-wrapper h1, 
+.customer-theme-wrapper h2, 
+.customer-theme-wrapper h3, 
+.customer-theme-wrapper h4,
+.customer-theme-wrapper strong {
+  color: #0f172a !important;
+}
+.customer-theme-wrapper span, 
+.customer-theme-wrapper p, 
+.customer-theme-wrapper label {
+  color: #475569 !important;
+}
+
+/* Buttons: Pitch Black native pill action buttons matching worker layout */
+.customer-theme-wrapper .btn-primary {
+  background: #0f172a !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  font-family: var(--font-title);
+  font-weight: 700;
+  box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.35) !important;
+  padding: 14px 28px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.customer-theme-wrapper .btn-primary:hover {
+  background: #1e293b !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 25px -5px rgba(15, 23, 42, 0.45) !important;
+}
+.customer-theme-wrapper .btn-primary:active {
+  transform: translateY(0) !important;
+}
+
+.customer-theme-wrapper .btn-secondary {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(158, 168, 253, 0.2) !important;
+  border-radius: 9999px !important;
+  font-family: var(--font-title);
+  font-weight: 700;
+  padding: 14px 28px !important;
+  transition: all 0.2s ease !important;
+}
+.customer-theme-wrapper .btn-secondary:hover {
+  background: #ffffff !important;
+  border-color: #5b6df4 !important;
+}
+
+/* Input Fields & Text Boxes */
+.customer-theme-wrapper input,
+.customer-theme-wrapper textarea {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(158, 168, 253, 0.2) !important;
+  color: #0f172a !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+.customer-theme-wrapper input:focus,
+.customer-theme-wrapper textarea:focus {
+  border-color: #5b6df4 !important;
+  box-shadow: 0 0 0 3px rgba(91, 109, 244, 0.12) !important;
+  background: #ffffff !important;
+}
+
+/* Calendar Date Indicators & Grid overrides */
+.customer-theme-wrapper div[style*="background: hsla(var(--success) / 0.15)"] {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+}
+.customer-theme-wrapper div[style*="background: hsla(var(--warning) / 0.15)"] {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #f59e0b !important;
+}
+.customer-theme-wrapper div[style*="background: hsla(var(--border-muted) / 0.3)"] {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* iOS support labels & headers */
+.customer-theme-wrapper span[style*="color: hsl(var(--primary))"] {
+  color: #5b6df4 !important; /* Premium rich sky-violet branding text color */
+}
+.customer-theme-wrapper div[style*="border-top: 1px solid hsl(var(--border-muted))"] {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+.customer-theme-wrapper div[style*="color: hsl(var(--text-muted))"] {
+  color: #64748b !important;
+}
+.customer-theme-wrapper header[style*="background: hsl(var(--bg-card))"] {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+.customer-theme-wrapper div[style*="background: hsl(var(--success))"] {
+  background: #10b981 !important;
+}
+.customer-theme-wrapper div[style*="background: hsl(var(--border-muted))"] {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 💎 Premium Select Dropdowns override */
+.customer-theme-wrapper select {
+  background: #ffffff !important;
+  border: 1px solid rgba(158, 168, 253, 0.2) !important;
+  color: #0f172a !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  font-size: 0.825rem !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s ease !important;
+}
+.customer-theme-wrapper select:hover {
+  border-color: #5b6df4 !important;
+}
+
+/* 💎 Premium Transparent Buttons (e.g. Sign Out) override */
+.customer-theme-wrapper button[style*="background: transparent"] {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(158, 168, 253, 0.2) !important;
+  color: #0f172a !important;
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 6px 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s ease !important;
+}
+.customer-theme-wrapper button[style*="background: transparent"]:hover {
+  background: #ffffff !important;
+  transform: translateY(-1px) !important;
+  border-color: #5b6df4 !important;
+}
+
+/* 💎 Premium Calendar Default Empty/Unwashed Day override */
+.customer-theme-wrapper div[style*="background: hsl(var(--bg-card))"] {
+  background: rgba(255, 255, 255, 0.35) !important;
+  color: #475569 !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* 💎 Premium Billing Invoices Block overrides */
+.customer-theme-wrapper div[style*="background: rgba(255, 255, 255, 0.02)"] {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+.customer-theme-wrapper strong[style*="color: white"] {
+  color: #0f172a !important;
+}
+
+/* 💎 Premium Billing Legend Block overrides */
+.customer-theme-wrapper div[style*="background: hsla(var(--bg-dark) / 0.5)"] {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border: 1px dashed rgba(15, 23, 42, 0.15) !important;
+  color: #475569 !important;
+}
+.customer-theme-wrapper span[style*="color: white"] {
+  color: #0f172a !important;
+}
+
+/* 💎 Support Feed logged complaint row blocks */
+.customer-theme-wrapper div[style*="background: rgba(255,255,255,0.03)"] {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ⏳ Missed status overrides */
+.customer-theme-wrapper .status-badge.missed {
+  background: rgba(100, 116, 139, 0.08) !important;
+  color: #64748b !important;
+  border: 1px solid rgba(100, 116, 139, 0.15) !important;
+}
+
+/* 🚀 PWA Splash Screen Animations */
+.pwa-splash {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: linear-gradient(185deg, #F0F6FF 0%, #F5F3FF 50%, #FAF9FF 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+}
+
+.pwa-splash-logo {
+  animation: splashPulse 2s infinite ease-in-out;
+}
+
+@keyframes splashPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 10px 25px rgba(91, 109, 244, 0.12)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 15px 35px rgba(91, 109, 244, 0.25)); }
+  100% { transform: scale(1); filter: drop-shadow(0 10px 25px rgba(91, 109, 244, 0.12)); }
+}
+
+.animate-splash-fade {
+  animation: splashFadeOut 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes splashFadeOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.08); pointer-events: none; }
+}
+
+/* Glowing spinner loader */
+.pwa-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(91, 109, 244, 0.1);
+  border-top-color: #5b6df4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-top: 24px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 📱 Premium Navigation Capsule (Floating bottom PWA nav for Customer) */
+.customer-theme-wrapper .customer-floating-nav {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 448px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 10px 30px -5px rgba(158, 168, 253, 0.15), 0 8px 16px -6px rgba(0, 0, 0, 0.03) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  padding: 8px 0 !important;
+}
+
+.customer-theme-wrapper .customer-tab-button {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  color: #64748b !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  font-size: 0.725rem !important;
+  font-weight: 600 !important;
+  transition: all 0.25s ease !important;
+  padding: 6px 16px !important;
+  position: relative !important;
+  flex: 1 !important;
+}
+
+.customer-theme-wrapper .customer-tab-button.active {
+  color: #5b6df4 !important;
+  font-weight: 700 !important;
+}
+
+.customer-theme-wrapper .customer-tab-button .active-bar {
+  position: absolute;
+  bottom: -4px;
+  width: 24px;
+  height: 3px;
+  background: #5b6df4;
+  border-radius: 99px;
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.customer-theme-wrapper .customer-tab-button.active .active-bar {
+  opacity: 1;
+  transform: scaleX(1);
+}

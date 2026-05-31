@@ -1,0 +1,364 @@
+"use client";
+
+import React, { useState } from "react";
+
+interface VehicleTask {
+  id: string;
+  vehicleId: string;
+  license: string;
+  model: string;
+  slot: string;
+  parkingSlot: string;
+  status: "pending" | "washed" | "skipped" | "missed";
+  apartmentName: string;
+  blockName: string;
+  interiorFrequency?: number;
+  hasInteriorRequest?: boolean;
+  markedAt?: string | null;
+}
+
+interface WorkerChecklistGridProps {
+  tasks: VehicleTask[];
+  finishedCount: number;
+  sessionCheckedIn: boolean;
+  toggleStatus: (task: VehicleTask, overrideStatus?: "washed" | "skipped" | "missed" | "pending") => void;
+  onMarkAllWashed: () => void;
+  onUndoMarkAll: () => void;
+  hasUndo: boolean;
+}
+
+/* 
+   SwipeableCard Sub-Component
+   Uses native HTML5 Touch Gestures with 0 bundle-size overhead and hardware acceleration.
+   Swipe Right -> Washed Today 🧼
+   Swipe Left -> Skip Exception ⚠️
+*/
+interface SwipeableCardProps {
+  task: VehicleTask;
+  toggleStatus: (task: VehicleTask, overrideStatus?: "washed" | "skipped" | "missed" | "pending") => void;
+  formatMarkedTime: (isoString?: string | null) => string;
+}
+
+function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardProps) {
+  const [startX, setStartX] = useState<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setStartX(e.touches[0].clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || startX === null) return;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - startX;
+
+    // Apply damping resistance beyond 100px swipe to create a natural, bouncy native-feel
+    let offset = diff;
+    if (diff > 100) {
+      offset = 100 + (diff - 100) * 0.2;
+    } else if (diff < -100) {
+      offset = -100 + (diff + 100) * 0.2;
+    }
+    setSwipeOffset(offset);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setStartX(null);
+
+    // Trigger actions when swipe surpasses the 80px gesture threshold
+    if (swipeOffset > 80) {
+      if (task.status !== "missed") {
+        toggleStatus(task, "missed");
+      }
+    } else if (swipeOffset < -88) {
+      toggleStatus(task, "skipped");
+    }
+
+    setSwipeOffset(0);
+  };
+
+  const cardClass = task.status === "washed" ? "checklist-card-washed" :
+                    task.status === "skipped" ? "checklist-card-skipped" :
+                    task.status === "missed" ? "checklist-card-missed" :
+                    "checklist-card-pending";
+
+  return (
+    <div 
+      style={{ 
+        position: "relative", 
+        width: "100%", 
+        borderRadius: "24px", 
+        overflow: "hidden",
+        background: "#E2E8F0", // Neutral track revealed during swipe
+        touchAction: "pan-y"   // Intercept horizontal gestures while allowing vertical page scrolling
+      }}
+    >
+      {/* Background Action Indicators */}
+      <div 
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "24px",
+          zIndex: 1,
+          overflow: "hidden"
+        }}
+      >
+        {/* Swipe Right: Missed */}
+        <div 
+          style={{
+            flex: 1,
+            height: "100%",
+            background: "linear-gradient(90deg, #64748b, #94a3b8)",
+            display: "flex",
+            alignItems: "center",
+            paddingLeft: "20px",
+            color: "white",
+            fontWeight: 700,
+            fontSize: "0.875rem",
+            opacity: swipeOffset > 0 ? Math.min(swipeOffset / 80, 1) : 0,
+            transition: "opacity 0.15s ease"
+          }}
+        >
+          ⏳ Missed
+        </div>
+
+        {/* Swipe Left: Skipped */}
+        <div 
+          style={{
+            flex: 1,
+            height: "100%",
+            background: "linear-gradient(270deg, #f59e0b, #fbbf24)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            paddingRight: "20px",
+            color: "white",
+            fontWeight: 700,
+            fontSize: "0.875rem",
+            opacity: swipeOffset < 0 ? Math.min(-swipeOffset / 80, 1) : 0,
+            transition: "opacity 0.15s ease"
+          }}
+        >
+          ⚠️ Skip Exception
+        </div>
+      </div>
+
+      {/* Actual Interactive Card */}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className={`worker-premium-card clickable ${cardClass}`}
+        onClick={() => toggleStatus(task)}
+        style={{
+          position: "relative",
+          zIndex: 2,
+          padding: "16px 20px !important",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transform: `translateX(${swipeOffset}px)`,
+          transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
+        }}
+      >
+        <div style={{ flex: 1, paddingRight: "10px" }}>
+          <span style={{ fontSize: "0.775rem", color: "#64748b", display: "block", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em", marginBottom: "3px" }}>
+            {task.blockName} • Flat {task.slot}
+          </span>
+          <strong style={{ fontSize: "1.2rem", fontFamily: "var(--font-title)", color: "#0f172a", display: "block", letterSpacing: "-0.01em" }}>
+            {task.license}
+          </strong>
+          <span style={{ fontSize: "0.85rem", color: "#475569", display: "block", marginTop: "2px" }}>
+            {task.model} <span style={{ color: "#94a3b8", fontSize: "0.8rem", marginLeft: "4px" }}>({task.parkingSlot ? `Slot ${task.parkingSlot}` : "No Slot"})</span>
+          </span>
+          {task.interiorFrequency !== undefined && task.interiorFrequency > 0 && (
+            <span style={{
+              fontSize: "0.675rem",
+              background: "rgba(16, 185, 129, 0.08)",
+              border: "1px solid rgba(16, 185, 129, 0.15)",
+              color: "#10b981",
+              padding: "2px 8px",
+              borderRadius: "6px",
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              marginTop: "6px"
+            }}>
+              🧼 SUNDAY INTERIOR INCLUDED
+            </span>
+          )}
+          {task.hasInteriorRequest && (
+            <span style={{
+              fontSize: "0.675rem",
+              background: "rgba(168, 85, 247, 0.08)",
+              border: "1px solid rgba(168, 85, 247, 0.15)",
+              color: "#a855f7",
+              padding: "2px 8px",
+              borderRadius: "6px",
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              marginTop: "6px",
+              marginLeft: task.interiorFrequency !== undefined && task.interiorFrequency > 0 ? "8px" : "0"
+            }}>
+              🧼 INTERIOR CLEANING REQUESTED
+            </span>
+          )}
+        </div>
+        
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
+          {task.status === "washed" && <span className="status-badge washed">Washed</span>}
+          {task.status === "skipped" && <span className="status-badge skipped">Skipped</span>}
+          {task.status === "missed" && <span className="status-badge missed">Missed</span>}
+          {task.status === "pending" && <span className="status-badge pending">Pending</span>}
+          
+          {task.status !== "pending" && task.markedAt && (
+            <span style={{ fontSize: "0.725rem", color: "#94a3b8", fontFamily: "monospace", fontWeight: 500 }}>
+              at {formatMarkedTime(task.markedAt)}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function WorkerChecklistGrid({
+  tasks,
+  finishedCount,
+  sessionCheckedIn,
+  toggleStatus,
+  onMarkAllWashed,
+  onUndoMarkAll,
+  hasUndo
+}: WorkerChecklistGridProps) {
+
+  const formatMarkedTime = (isoString?: string | null) => {
+    if (!isoString) return "";
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch (e) {
+      return "";
+    }
+  };
+
+  return (
+    <main style={{ display: "flex", flexDirection: "column", gap: "16px" }} className="animate-fade-in">
+      
+      {/* Geofence Check-in warning alert bubble if previewing before attendance checkin */}
+      {!sessionCheckedIn && (
+        <div className="worker-premium-card" style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "16px !important" }}>
+          <div style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            background: "rgba(245, 158, 11, 0.1)",
+            border: "1px solid rgba(245, 158, 11, 0.3)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.1rem",
+            flexShrink: 0
+          }}>
+            🤖
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
+            <strong style={{ fontSize: "0.75rem", color: "#f59e0b", textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.05em" }}>
+              Geofence Preview Lock 🔒
+            </strong>
+            <p style={{ fontSize: "0.85rem", color: "#475569", lineHeight: "1.4", margin: 0 }}>
+              Here are the vehicles assigned to you today. You can view them, but to mark their status as Washed or Skipped, you must check in at the complex first!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Header and Stats */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px" }}>
+        <h2 style={{ fontSize: "0.875rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700, margin: 0 }}>
+          Assigned Vehicles ({tasks.length})
+        </h2>
+        <strong style={{ fontSize: "0.9rem", color: finishedCount === tasks.length && tasks.length > 0 ? "#10b981" : "#a855f7", fontWeight: 700 }}>
+          {finishedCount} / {tasks.length} Completed
+        </strong>
+      </div>
+
+      {/* Mark All Washed Bulk Action Button Row */}
+      {tasks.length > 0 && (
+        <div style={{ display: "flex", gap: "10px", margin: "0 0 4px 0", width: "100%" }}>
+          {hasUndo && (
+            <button
+              type="button"
+              onClick={onUndoMarkAll}
+              className="btn-secondary"
+              style={{
+                flex: "0 0 32%",
+                justifyContent: "center",
+                padding: "12px 10px !important",
+                fontSize: "0.875rem",
+                borderRadius: "16px",
+                borderColor: "#a855f7",
+                color: "#a855f7",
+                background: "rgba(168, 85, 247, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px"
+              }}
+            >
+              ↩️ Undo
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onMarkAllWashed}
+            className="btn-primary"
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              padding: "12px 20px !important",
+              fontSize: "0.875rem",
+              borderRadius: "16px",
+              background: "linear-gradient(135deg, #a855f7, #6366f1) !important",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 4px 12px rgba(168, 85, 247, 0.2)"
+            }}
+          >
+            ⚡ Mark All as Washed
+          </button>
+        </div>
+      )}
+
+      {/* Checklist Grid */}
+      {tasks.length === 0 ? (
+        <div className="worker-premium-card" style={{ padding: "40px 20px !important", textAlign: "center", color: "#64748b" }}>
+          No vehicle washes assigned for today at this complex.
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {tasks.map(task => (
+            <SwipeableCard
+              key={task.id}
+              task={task}
+              toggleStatus={toggleStatus}
+              formatMarkedTime={formatMarkedTime}
+            />
+          ))}
+        </div>
+      )}
+    </main>
+  );
+}
