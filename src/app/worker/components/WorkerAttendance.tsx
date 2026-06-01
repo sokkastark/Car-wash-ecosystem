@@ -67,7 +67,7 @@ export default function WorkerAttendance({
             {session.checkedIn ? "Active Shift Tasks" : getGreetingText()}
           </h4>
           <p style={{ fontSize: "0.9rem", color: "#475569", lineHeight: "1.45", margin: 0 }}>
-            {session.checkedIn ? assistantMessage : "Ready to start your shift check-in? Or do you want to see which vehicles are on your list first?"}
+            {assistantMessage}
           </p>
         </div>
       </div>
