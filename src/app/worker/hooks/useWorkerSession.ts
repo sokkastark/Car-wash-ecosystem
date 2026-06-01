@@ -27,7 +27,7 @@ export function useWorkerSession() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [loggedInWorker, setLoggedInWorker] = useState<Worker | null>(null);
-  const [activeTab, setActiveTab] = useState<"attendance" | "checklist" | "profile">("attendance");
+  const [activeTab, setActiveTab] = useState<"attendance" | "checklist" | "profile" | "settings">("attendance");
   const [assistantMessage, setAssistantMessage] = useState("");
   
   const [session, setSession] = useState<{

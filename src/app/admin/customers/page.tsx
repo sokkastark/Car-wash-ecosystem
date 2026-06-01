@@ -25,6 +25,9 @@ export default function CustomersRegistry() {
     "sobha-dream-acres": true
   });
 
+  // Individual complex search query state
+  const [searchQueries, setSearchQueries] = useState<Record<string, string>>({});
+
   // Modal and Selection States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -116,11 +119,90 @@ export default function CustomersRegistry() {
                   {/* Accordion Content */}
                   {isExpanded && (
                     <div style={{ padding: "12px 24px" }}>
-                      <CustomersSummaryTable 
-                        customers={aptCustomers}
-                        onEdit={(cust) => { setSelectedCustomer(cust); setIsEditModalOpen(true); }}
-                        onDelete={(cust) => { setSelectedCustomer(cust); setIsDeleteModalOpen(true); }}
-                      />
+                      {/* Search Bar for this individual complex */}
+                      <div style={{ 
+                        marginBottom: "16px", 
+                        display: "flex", 
+                        gap: "12px", 
+                        alignItems: "center",
+                        background: "hsla(var(--bg-dark) / 0.15)",
+                        border: "1px solid hsl(var(--border-muted))",
+                        borderRadius: "var(--radius-md)",
+                        padding: "6px 14px"
+                      }}>
+                        <span style={{ fontSize: "1.1rem" }}>🔍</span>
+                        <input
+                          type="text"
+                          placeholder={`Search residents in ${apt.name} by Name, Flat No, Phone, ID, or License...`}
+                          value={searchQueries[apt.id] || ""}
+                          onChange={(e) => setSearchQueries(prev => ({ ...prev, [apt.id]: e.target.value }))}
+                          style={{
+                            flexGrow: 1,
+                            padding: "8px 0",
+                            background: "transparent",
+                            border: "none",
+                            color: "white",
+                            fontSize: "0.9rem",
+                            outline: "none"
+                          }}
+                        />
+                        {(searchQueries[apt.id] || "") && (
+                          <button
+                            onClick={() => setSearchQueries(prev => ({ ...prev, [apt.id]: "" }))}
+                            style={{
+                              background: "hsla(var(--border-muted) / 0.5)",
+                              border: "none",
+                              color: "white",
+                              borderRadius: "var(--radius-sm)",
+                              padding: "4px 10px",
+                              cursor: "pointer",
+                              fontSize: "0.75rem",
+                              fontWeight: 600
+                            }}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+
+                      {(() => {
+                        const query = (searchQueries[apt.id] || "").trim().toLowerCase();
+                        const filteredCustomers = aptCustomers.filter(c => {
+                          if (!query) return true;
+                          
+                          const matchName = (c.name || "").toLowerCase().includes(query);
+                          const matchFlat = (c.flatNo || "").toLowerCase().includes(query);
+                          const matchPhone = (c.phone || "").toLowerCase().includes(query);
+                          const matchCustomId = (c.customCustomerId || "").toLowerCase().includes(query);
+                          const matchBlock = (c.blockName || "").toLowerCase().includes(query);
+                          
+                          const matchVehicles = c.vehicles.some(v => 
+                            (v.licensePlate || "").toLowerCase().includes(query) ||
+                            (v.make || "").toLowerCase().includes(query) ||
+                            (v.model || "").toLowerCase().includes(query) ||
+                            (v.color || "").toLowerCase().includes(query) ||
+                            (v.planName || "").toLowerCase().includes(query)
+                          );
+                          
+                          return matchName || matchFlat || matchPhone || matchCustomId || matchBlock || matchVehicles;
+                        });
+
+                        if (filteredCustomers.length === 0) {
+                          return (
+                            <div style={{ color: "hsl(var(--text-muted))", padding: "30px 0", textAlign: "center", fontSize: "0.95rem" }}>
+                              No residents matched your search query in this complex.
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <CustomersSummaryTable 
+                            customers={filteredCustomers}
+                            onEdit={(cust) => { setSelectedCustomer(cust); setIsEditModalOpen(true); }}
+                            onDelete={(cust) => { setSelectedCustomer(cust); setIsDeleteModalOpen(true); }}
+                          />
+                        );
+                      })()}
                     </div>
                   )}
                 </section>

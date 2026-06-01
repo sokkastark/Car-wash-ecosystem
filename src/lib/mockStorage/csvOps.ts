@@ -58,8 +58,21 @@ export const csvOps = {
           }
         }
 
-        const cleanPhoneSuffix = row.phone.slice(-4) || "0000";
-        const customId = `SV-BRG-${row.parkingSlot.replace("-", "")}-${cleanPhoneSuffix}`;
+        const cleanName = (row.customerName || "RESIDENT").trim().split(" ")[0].toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const cleanFlat = String(row.flatNo || row.parkingSlot || "000").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        
+        let customId = "";
+        const minLen = Math.min(cleanName.length, cleanFlat.length);
+        for (let i = 0; i < minLen; i++) {
+          customId += cleanName[i] + cleanFlat[i];
+        }
+        if (customId.length < 4) {
+          const maxLen = Math.max(cleanName.length, cleanFlat.length);
+          for (let i = minLen; i < maxLen; i++) {
+            if (i < cleanName.length) customId += cleanName[i];
+            if (i < cleanFlat.length) customId += cleanFlat[i];
+          }
+        }
 
         const customerId = `cust-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
         const newCust: Customer = {
@@ -90,6 +103,17 @@ export const csvOps = {
 
         const assignedWorkerName = (row.assignedWorker || "").trim().toLowerCase();
         const workerId = assignedWorkerName ? workerMap.get(assignedWorkerName) : null;
+        if (workerId) {
+          const wObj = workers.find(w => w.id === workerId);
+          if (wObj) {
+            if (!Array.isArray(wObj.assigned_complex_ids)) {
+              wObj.assigned_complex_ids = [];
+            }
+            if (!wObj.assigned_complex_ids.includes(apartmentId)) {
+              wObj.assigned_complex_ids.push(apartmentId);
+            }
+          }
+        }
 
         const vehicleId = `veh-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
         const newVeh: Vehicle = {
@@ -111,6 +135,7 @@ export const csvOps = {
       setStorageItem("sv_blocks", blocks);
       setStorageItem("sv_customers", customers);
       setStorageItem("sv_vehicles", vehicles);
+      setStorageItem("sv_workers", workers);
 
       financeOps.saveUploadLog({
         fileName,

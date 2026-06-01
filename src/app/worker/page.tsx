@@ -7,6 +7,7 @@ import WorkerLogin from "./components/WorkerLogin";
 import WorkerAttendance from "./components/WorkerAttendance";
 import WorkerProfile from "./components/WorkerProfile";
 import WorkerChecklistGrid from "./components/WorkerChecklistGrid";
+import WorkerSettings from "./components/WorkerSettings";
 import "./worker.css";
 
 export default function WorkerChecklist() {
@@ -94,6 +95,10 @@ export default function WorkerChecklist() {
           <WorkerProfile worker={loggedInWorker} assignedComplexes={assignedComplexes} onLogout={handleLogout} />
         )}
 
+        {activeTab === "settings" && (
+          <WorkerSettings />
+        )}
+
       </div>
 
       {/* Sleek Floating PWA Navigation Bottom Bar */}
@@ -122,6 +127,15 @@ export default function WorkerChecklist() {
         >
           <span style={{ fontSize: "1.35rem" }}>👤</span>
           <span>Profile</span>
+          <div className="active-bar" />
+        </button>
+
+        <button
+          onClick={() => setActiveTab("settings")}
+          className={`worker-tab-button ${activeTab === "settings" ? "active" : ""}`}
+        >
+          <span style={{ fontSize: "1.35rem" }}>⚙️</span>
+          <span>Settings</span>
           <div className="active-bar" />
         </button>
       </nav>

@@ -5,12 +5,13 @@ import { mockStorage, DetailedCustomer, DailyServiceLog, InteriorCleaningRequest
 import CustomerLogin from "./components/CustomerLogin";
 import CustomerBillingPanel from "./components/CustomerBillingPanel";
 import CustomerSupportPanel from "./components/CustomerSupportPanel";
+import CustomerSettings from "./components/CustomerSettings";
 import "./customer.css";
 
 export default function CustomerDashboard() {
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
-  const [activeTab, setActiveTab] = useState<"vehicles" | "billing" | "support">("vehicles");
+  const [activeTab, setActiveTab] = useState<"vehicles" | "billing" | "support" | "settings">("vehicles");
   const [customerId, setCustomerId] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [customer, setCustomer] = useState<DetailedCustomer | null>(null);
@@ -855,6 +856,11 @@ export default function CustomerDashboard() {
               assignedSupervisor={assignedSupervisor}
             />
           )}
+
+          {/* ⚙️ SETTINGS TAB */}
+          {activeTab === "settings" && (
+            <CustomerSettings />
+          )}
         </main>
       </div>
 
@@ -884,6 +890,15 @@ export default function CustomerDashboard() {
         >
           <span style={{ fontSize: "1.35rem" }}>💬</span>
           <span>Support</span>
+          <div className="active-bar" />
+        </button>
+
+        <button
+          onClick={() => setActiveTab("settings")}
+          className={`customer-tab-button ${activeTab === "settings" ? "active" : ""}`}
+        >
+          <span style={{ fontSize: "1.35rem" }}>⚙️</span>
+          <span>Settings</span>
           <div className="active-bar" />
         </button>
       </nav>

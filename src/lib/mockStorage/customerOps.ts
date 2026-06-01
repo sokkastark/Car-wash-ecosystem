@@ -87,8 +87,21 @@ export const customerOps = {
 
     try {
       const customerId = `cust-${Date.now()}`;
-      const cleanPhoneSuffix = data.phone.slice(-4) || "0000";
-      const customId = `SV-BRG-${data.parkingSlot.replace("-", "")}-${cleanPhoneSuffix}`;
+      const cleanName = (data.name || "RESIDENT").trim().split(" ")[0].toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const cleanFlat = String(data.flatNo || data.parkingSlot || "0").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+      
+      let customId = "";
+      const minLen = Math.min(cleanName.length, cleanFlat.length);
+      for (let i = 0; i < minLen; i++) {
+        customId += cleanName[i] + cleanFlat[i];
+      }
+      if (customId.length < 4) {
+        const maxLen = Math.max(cleanName.length, cleanFlat.length);
+        for (let i = minLen; i < maxLen; i++) {
+          if (i < cleanName.length) customId += cleanName[i];
+          if (i < cleanFlat.length) customId += cleanFlat[i];
+        }
+      }
 
       const newCust: Customer = {
         id: customerId,
@@ -149,6 +162,23 @@ export const customerOps = {
       customers[custIndex].block_id = data.blockId || null;
       customers[custIndex].flat_no = data.flatNo;
       customers[custIndex].parking_slot = data.parkingSlot;
+
+      const cleanName = (data.name || "RESIDENT").trim().split(" ")[0].toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const cleanFlat = String(data.flatNo || data.parkingSlot || "0").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+      
+      let customId = "";
+      const minLen = Math.min(cleanName.length, cleanFlat.length);
+      for (let i = 0; i < minLen; i++) {
+        customId += cleanName[i] + cleanFlat[i];
+      }
+      if (customId.length < 4) {
+        const maxLen = Math.max(cleanName.length, cleanFlat.length);
+        for (let i = minLen; i < maxLen; i++) {
+          if (i < cleanName.length) customId += cleanName[i];
+          if (i < cleanFlat.length) customId += cleanFlat[i];
+        }
+      }
+      customers[custIndex].custom_customer_id = customId;
 
       vehicles = vehicles.filter(v => v.customer_id !== id);
       if (data.vehicles && Array.isArray(data.vehicles)) {

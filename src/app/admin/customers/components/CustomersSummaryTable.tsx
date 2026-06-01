@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DetailedCustomer } from "@/lib/mockStorage";
 import Table from "@/components/ui/Table";
 
@@ -17,6 +17,10 @@ export default function CustomersSummaryTable({
 }: CustomersSummaryTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [customers]);
 
   if (customers.length === 0) {
     return (
