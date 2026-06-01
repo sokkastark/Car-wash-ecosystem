@@ -33,7 +33,14 @@ export const inflowOps = {
           const cust = activeCustomerMap.get(veh.customer_id);
           const plan = planMap.get(veh.plan_id);
           const isBike = veh.vehicle_type === "bike";
-          const basePrice = plan ? (isBike ? plan.price_bike : plan.price_car) : 0;
+          
+          let basePrice = 0;
+          if (plan && cust) {
+            // Dynamically import complexOps to avoid circular dependency issues
+            const { complexOps } = require("./complexOps");
+            basePrice = complexOps.getPlanPriceForComplex(cust.apartment_id, veh.plan_id, veh.vehicle_type, plans);
+          }
+          
           const customPriceVal = (veh.custom_price !== null && veh.custom_price !== undefined) ? Number(veh.custom_price) : null;
           const interiorPrice = (!isBike) ? (Number(veh.interior_frequency) || 0) * 50 : 0;
           const amount = (customPriceVal !== null ? customPriceVal : basePrice) + interiorPrice;

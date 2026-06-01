@@ -22,36 +22,36 @@ export const DEFAULT_PLANS: SubscriptionPlan[] = [
     agency_id: DEMO_AGENCY_ID, 
     name: "Daily Wash", 
     recurrence: "daily", 
-    price_car: 700, 
+    price_car: 999, 
     price_bike: 350,
-    price_hatchback: 700,
-    price_sedan: 850,
-    price_suv: 1000,
-    price_luxury: 1200
+    price_hatchback: 999,
+    price_sedan: 1200,
+    price_suv: 1200,
+    price_luxury: 1500
   },
   { 
     id: "plan-alternate", 
     agency_id: DEMO_AGENCY_ID, 
     name: "Alternate Days", 
     recurrence: "alternate_days", 
-    price_car: 500, 
+    price_car: 699, 
     price_bike: 250,
-    price_hatchback: 500,
-    price_sedan: 600,
-    price_suv: 700,
-    price_luxury: 750
+    price_hatchback: 699,
+    price_sedan: 899,
+    price_suv: 999,
+    price_luxury: 1199
   },
   { 
     id: "plan-weekly-once", 
     agency_id: DEMO_AGENCY_ID, 
     name: "Weekly Once", 
     recurrence: "weekly_once", 
-    price_car: 250, 
+    price_car: 399, 
     price_bike: 120,
-    price_hatchback: 250,
-    price_sedan: 300,
-    price_suv: 350,
-    price_luxury: 400
+    price_hatchback: 399,
+    price_sedan: 499,
+    price_suv: 599,
+    price_luxury: 699
   }
 ];
 

@@ -104,6 +104,22 @@ const repairNaNValues = () => {
   }
 };
 
+const upgradePlansPricing = () => {
+  try {
+    const plansItem = localStorage.getItem("sv_plans");
+    if (plansItem) {
+      const plans = JSON.parse(plansItem);
+      const dailyPlan = plans.find((p: any) => p.id === "plan-daily");
+      if (dailyPlan && dailyPlan.price_sedan === 850) {
+        setStorageItem("sv_plans", DEFAULT_PLANS);
+        console.log("[mockStorage] Upgraded local subscription plan pricing to match correct baseline rates.");
+      }
+    }
+  } catch (e) {
+    console.error("[mockStorage] Failed to run plans pricing upgrade:", e);
+  }
+};
+
 export const initializeMockDatabase = (force = false) => {
   if (typeof window === "undefined") return;
 
@@ -118,6 +134,7 @@ export const initializeMockDatabase = (force = false) => {
             console.log("[SyncEngine] Auto-pulled database snapshot from Supabase successfully!");
             window.dispatchEvent(new Event("db_cloud_sync_completed"));
             repairNaNValues();
+            upgradePlansPricing();
           } else if (res.success && !res.hasData) {
             // Cloud is empty, initialize with seeds and push
             if (!localStorage.getItem("sv_db_initialized_v6")) {
@@ -141,5 +158,6 @@ export const initializeMockDatabase = (force = false) => {
     writeLocalSeeds();
   } else {
     repairNaNValues();
+    upgradePlansPricing();
   }
 };
