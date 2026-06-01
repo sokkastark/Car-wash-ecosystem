@@ -38,7 +38,11 @@ export default function HomeRouter() {
         setIsLocal(true);
         setIsVercelApp(false);
       } else {
-        setBaseDomain(hostname);
+        let base = hostname;
+        if (hostname.startsWith("sveco.")) {
+          base = hostname.replace("sveco.", "");
+        }
+        setBaseDomain(base);
         setIsLocal(false);
         setIsVercelApp(hostname.endsWith("vercel.app"));
       }
