@@ -110,13 +110,13 @@ export default function CustomerDashboard() {
         } else {
           setAssignedWasher({
             name: vehiclesWithWorker[0].assignedWorkerName || "Assigned Cleaner",
-            phone: "+919876543210"
+            phone: "+918095695154"
           });
         }
       } else {
         setAssignedWasher({
           name: "Shanmugha P",
-          phone: "+919876543210"
+          phone: "+918095695154"
         });
       }
 
