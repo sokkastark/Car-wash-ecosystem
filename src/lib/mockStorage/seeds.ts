@@ -13,20 +13,8 @@ import {
 export const DEMO_AGENCY_ID = "a7b3c200-a299-4c4d-9051-fb18c5054992";
 export const DEMO_APARTMENT_ID = "b4c5d600-e102-4d1a-821b-cfc12dcd3422";
 
-export const DEFAULT_APARTMENTS: Apartment[] = [
-  { id: DEMO_APARTMENT_ID, name: "Brigade Apartments", address: "Whitefield Road, Pattandur Agrahara", city: "Bengaluru", agency_id: DEMO_AGENCY_ID },
-  { id: "prestige-shantiniketan", name: "Prestige Shantiniketan", address: "ITPL Main Road, Thigalarapalya", city: "Bengaluru", agency_id: DEMO_AGENCY_ID },
-  { id: "sobha-dream-acres", name: "Sobha Dream Acres", address: "Panathur Main Road, Balagere", city: "Bengaluru", agency_id: DEMO_AGENCY_ID }
-];
-
-export const DEFAULT_BLOCKS: Block[] = [
-  { id: "block-brigade-a", apartment_id: DEMO_APARTMENT_ID, name: "Block A" },
-  { id: "block-brigade-b", apartment_id: DEMO_APARTMENT_ID, name: "Block B" },
-  { id: "block-brigade-c", apartment_id: DEMO_APARTMENT_ID, name: "Block C" },
-  { id: "block-prestige-t1", apartment_id: "prestige-shantiniketan", name: "Tower 1" },
-  { id: "block-prestige-t2", apartment_id: "prestige-shantiniketan", name: "Tower 2" },
-  { id: "block-sobha-w1", apartment_id: "sobha-dream-acres", name: "Wing 1" }
-];
+export const DEFAULT_APARTMENTS: Apartment[] = [];
+export const DEFAULT_BLOCKS: Block[] = [];
 
 export const DEFAULT_PLANS: SubscriptionPlan[] = [
   { 
@@ -68,8 +56,8 @@ export const DEFAULT_PLANS: SubscriptionPlan[] = [
 ];
 
 export const DEFAULT_WORKERS: Worker[] = [
-  { id: "worker-rajesh", agency_id: DEMO_AGENCY_ID, name: "Shanmugha P", phone: "+918095695154", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID], monthly_salary: 14000, salary_status: "credited", attendance_today: "present" },
-  { id: "worker-ramesh", agency_id: DEMO_AGENCY_ID, name: "Perumal S", phone: "+918825492512", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID], monthly_salary: 15500, salary_status: "pending", attendance_today: "present" }
+  { id: "worker-rajesh", agency_id: DEMO_AGENCY_ID, name: "Shanmugha P", phone: "+918095695154", role: "washer", is_active: true, assigned_complex_ids: [], monthly_salary: 14000, salary_status: "credited", attendance_today: "present" },
+  { id: "worker-ramesh", agency_id: DEMO_AGENCY_ID, name: "Perumal S", phone: "+918825492512", role: "washer", is_active: true, assigned_complex_ids: [], monthly_salary: 15500, salary_status: "pending", attendance_today: "present" }
 ];
 
 export const DEFAULT_CUSTOMERS: Customer[] = [];

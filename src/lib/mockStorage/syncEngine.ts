@@ -82,8 +82,8 @@ export function importFromSyncCode(code: string): boolean {
       }
     });
 
-    // Ensure the mock storage is set to initialized with version 5
-    localStorage.setItem("sv_db_initialized_v5", "true");
+    // Ensure the mock storage is set to initialized with version 6
+    localStorage.setItem("sv_db_initialized_v6", "true");
     
     // Save metadata tracking when sync occurred
     localStorage.setItem("sv_last_device_sync", new Date().toISOString());
@@ -131,7 +131,7 @@ export function importFromJSONString(jsonString: string): boolean {
         localStorage.setItem(key, JSON.stringify(data[key]));
       }
     });
-    localStorage.setItem("sv_db_initialized_v5", "true");
+    localStorage.setItem("sv_db_initialized_v6", "true");
     localStorage.setItem("sv_last_device_sync", new Date().toISOString());
     return true;
   } catch (e) {
@@ -221,7 +221,7 @@ export async function pullFromSupabase(): Promise<{ success: boolean; hasData?: 
       }
     });
 
-    localStorage.setItem("sv_db_initialized_v5", "true");
+    localStorage.setItem("sv_db_initialized_v6", "true");
     localStorage.setItem("sv_last_cloud_pull", new Date().toISOString());
     if (record.updated_at) {
       localStorage.setItem("sv_last_cloud_push", record.updated_at);

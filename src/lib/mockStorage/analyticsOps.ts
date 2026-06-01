@@ -132,20 +132,35 @@ export const analyticsOps = {
 
   getComplexesProgress(apartmentId?: string) {
     initializeMockDatabase();
-    const apartments = getStorageItem<Apartment[]>("sv_apartments", DEFAULT_APARTMENTS);
-    
-    const progressMap: Record<string, { progress: number, washed: number, skipped: number, missed: number }> = {
-      [DEMO_APARTMENT_ID]: { progress: 85, washed: 18, skipped: 3, missed: 0 },
-      "prestige-shantiniketan": { progress: 50, washed: 12, skipped: 1, missed: 1 },
-      "sobha-dream-acres": { progress: 100, washed: 32, skipped: 0, missed: 0 }
-    };
+    const apartments = getStorageItem<Apartment[]>("sv_apartments", []);
+    const customers = getStorageItem<Customer[]>("sv_customers", []);
+    const vehicles = getStorageItem<Vehicle[]>("sv_vehicles", []);
+    const logs = getStorageItem<any[]>("sv_daily_service_logs", []);
+
+    const SIMULATION_DATE = "2026-05-30";
 
     const list = apartments.map(apt => {
-      const progressStats = progressMap[apt.id] || { progress: 0, washed: 0, skipped: 0, missed: 0 };
+      const aptCustomers = customers.filter(c => c.apartment_id === apt.id);
+      const custIds = new Set(aptCustomers.map(c => c.id));
+      const aptVehicles = vehicles.filter(v => custIds.has(v.customer_id));
+      const vehIds = new Set(aptVehicles.map(v => v.id));
+
+      const aptLogs = logs.filter(l => l.log_date === SIMULATION_DATE && vehIds.has(l.vehicle_id));
+      
+      const washed = aptLogs.filter(l => l.status === "washed").length;
+      const skipped = aptLogs.filter(l => l.status === "skipped").length;
+      const missed = aptLogs.filter(l => l.status === "missed").length;
+      const total = aptVehicles.length;
+
+      const progress = total > 0 ? Math.round(((washed + skipped) / total) * 100) : 0;
+
       return {
         id: apt.id,
         name: apt.name,
-        ...progressStats
+        progress,
+        washed,
+        skipped,
+        missed
       };
     });
 

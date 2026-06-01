@@ -61,7 +61,7 @@ export const initializeMockDatabase = (force = false) => {
     }
   }
 
-  if (force || !localStorage.getItem("sv_db_initialized_v5")) {
+  if (force || !localStorage.getItem("sv_db_initialized_v6")) {
     setStorageItem("sv_apartments", DEFAULT_APARTMENTS);
     setStorageItem("sv_blocks", DEFAULT_BLOCKS);
     setStorageItem("sv_plans", DEFAULT_PLANS);
@@ -76,7 +76,7 @@ export const initializeMockDatabase = (force = false) => {
     setStorageItem("sv_inflow_payments", []);
     setStorageItem("sv_daily_service_logs", []);
 
-    localStorage.setItem("sv_db_initialized_v5", "true");
+    localStorage.setItem("sv_db_initialized_v6", "true");
   } else {
     // Auto-repair corrupted NaN values in existing localStorage keys
     try {
