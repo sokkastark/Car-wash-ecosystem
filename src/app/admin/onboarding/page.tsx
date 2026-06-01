@@ -48,10 +48,15 @@ export default function BulkOnboarding() {
 
   const handleDownloadTemplate = () => {
     const headers = "Complex Name,Block Name,Flat No,Customer Name,Phone,Email,Parking Slot,License Plate,Vehicle Type,Make,Model,Color,Plan Name,Custom Price,Interior Frequency,Assigned Worker\n";
-    const sample1 = "Brigade Apartments,Block C,404,Rohit Sharma,+919876543322,rohit@example.com,C-404,KA-03-XX-8888,car,Sk Skoda,Kushaq,White,Daily Wash,,1,Shanmugha P\n";
-    const sample2 = "Prestige Shantiniketan,Tower 2,802,Virat Kohli,+919876543333,virat@example.com,T2-802,KA-51-AB-1818,suv,Audi,Q7,Black,Daily Wash,1200,2,Perumal S\n";
+    const sample1 = "Brigade Apartments,Block A,102,Amit Kumar,+919999999901,amit@example.com,A-102,KA-03-MS-1111,car,Hyundai,i20,White,Daily Wash,,1,Shanmugha P\n";
+    const sample2 = "Brigade Apartments,Block B,304,Priya Sharma,+919999999902,priya@example.com,B-304,KA-05-AB-5555,hatchback,Maruti,Swift,Red,Alternate Days,,2,Perumal S\n";
+    const sample3 = "Prestige Shantiniketan,Tower 1,505,Rahul Singh,+919999999903,rahul@example.com,T1-505,KA-01-XY-9999,bike,KTM,Duke 250,Orange,Weekly Once,,0,Shanmugha P\n";
+    const sample4 = "Brigade Apartments,Block C,404,Rohit Sharma,+919876543322,rohit@example.com,C-404,KA-03-XX-8888,car,Sk Skoda,Kushaq,White,Daily Wash,1199,2,Shanmugha P\n";
+    const sample5 = "Prestige Shantiniketan,Tower 2,802,Virat Kohli,+919876543333,virat@example.com,T2-802,KA-51-AB-1818,suv,Audi,Q7,Black,Alternate Days,1500,2,Perumal S\n";
+    const sample6 = "Sobha Dream Acres,Wing A,909,Sneha Patel,+919876543344,sneha@example.com,A-909,KA-02-XY-4444,sedan,Honda,City,Silver,Weekly Once,600,1,Perumal S\n";
+    const sample7 = "Brigade Apartments,Block D,205,Vijay Rao,+919876543355,vijay@example.com,D-205,KA-04-AB-2222,luxury,BMW,3 Series,Blue,Custom Plan,2000,2,Shanmugha P\n";
     
-    const csvContent = headers + sample1 + sample2;
+    const csvContent = headers + sample1 + sample2 + sample3 + sample4 + sample5 + sample6 + sample7;
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
