@@ -143,8 +143,10 @@ export const financeOps = {
         const ym = `${selectedYear}-${mStr}`;
         const stats = getMonthStats(ym);
 
-        const isFuture = ym > "2026-05";
-        const hasHistory = ym >= "2025-12" && ym <= "2026-05";
+        const now = new Date();
+        const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        const isFuture = ym > currentYM;
+        const hasHistory = ym >= "2025-12" && ym <= currentYM;
 
         const finalInflow = hasHistory ? stats.inflow : (isFuture ? 0 : (selectedYear === "2026" ? 42000 : 0));
         const finalOutflow = hasHistory ? stats.outflow : (isFuture ? 0 : (selectedYear === "2026" ? 35000 : 0));
@@ -183,14 +185,43 @@ export const financeOps = {
       const targetMonthYear = `${selectedYear}-${selectedMonth.padStart(2, "0")}`;
       const stats = getMonthStats(targetMonthYear);
 
-      const monthsArray = [
-        { month: "Dec 2025", ym: "2025-12", baseInflow: 42000, baseOutflow: 35000 },
-        { month: "Jan 2026", ym: "2026-01", baseInflow: 48000, baseOutflow: 37500 },
-        { month: "Feb 2026", ym: "2026-02", baseInflow: 51000, baseOutflow: 39000 },
-        { month: "Mar 2026", ym: "2026-03", baseInflow: 58000, baseOutflow: 45000 },
-        { month: "Apr 2026", ym: "2026-04", baseInflow: 64000, baseOutflow: 46200 },
-        { month: "May 2026", ym: "2026-05", baseInflow: 65000, baseOutflow: 48000 }
-      ];
+      // Start from Dec 2025 and build up to the current month dynamically!
+      const startYear = 2025;
+      const startMonth = 12;
+      const now = new Date();
+      const endYear = now.getFullYear();
+      const endMonth = now.getMonth() + 1;
+
+      const monthsArray = [];
+      let tempYear = startYear;
+      let tempMonth = startMonth;
+
+      const baseInflowStart = 42000;
+      const baseOutflowStart = 35000;
+      let idx = 0;
+
+      while (tempYear < endYear || (tempYear === endYear && tempMonth <= endMonth)) {
+        const ym = `${tempYear}-${String(tempMonth).padStart(2, "0")}`;
+        const monthName = new Date(tempYear, tempMonth - 1).toLocaleString("en-US", { month: "short", year: "numeric" });
+        
+        // Slightly increase base values per month to show realistic growth
+        const baseInflow = baseInflowStart + idx * 5000;
+        const baseOutflow = baseOutflowStart + idx * 2500;
+
+        monthsArray.push({
+          month: monthName,
+          ym,
+          baseInflow,
+          baseOutflow
+        });
+
+        tempMonth++;
+        if (tempMonth > 12) {
+          tempMonth = 1;
+          tempYear++;
+        }
+        idx++;
+      }
 
       const selectedIndex = monthsArray.findIndex(m => m.ym === targetMonthYear);
       let trendList = [...monthsArray];

@@ -57,7 +57,7 @@ export default function WorkerChecklist() {
         {/* Active Worker Mini-Header */}
         <header style={{ marginBottom: "22px" }}>
           <span style={{ fontSize: "0.75rem", color: "#a855f7", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            Active Shift — May 30, 2026
+            Active Shift — {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
           </span>
         </header>
 

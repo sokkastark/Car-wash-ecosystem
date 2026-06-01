@@ -61,8 +61,10 @@ export const analyticsOps = {
       }
     });
 
-    const currentMonthEnrolled = customers.filter(c => c.join_date?.startsWith("2026-05")).length;
-    const currentMonthLeft = customers.filter(c => c.status === "left" && c.left_date?.startsWith("2026-05")).length;
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const currentMonthEnrolled = customers.filter(c => c.join_date?.startsWith(currentYM)).length;
+    const currentMonthLeft = customers.filter(c => c.status === "left" && c.left_date?.startsWith(currentYM)).length;
 
     const growthTrend = [
       { month: "Dec 2025", enrolled: 4, left: 1 },
@@ -70,7 +72,7 @@ export const analyticsOps = {
       { month: "Feb 2026", enrolled: 5, left: 0 },
       { month: "Mar 2026", enrolled: 8, left: 3 },
       { month: "Apr 2026", enrolled: 7, left: 1 },
-      { month: "May 2026", enrolled: currentMonthEnrolled, left: currentMonthLeft }
+      { month: now.toLocaleString("en-US", { month: "short", year: "numeric" }), enrolled: currentMonthEnrolled, left: currentMonthLeft }
     ];
 
     return {
@@ -137,7 +139,8 @@ export const analyticsOps = {
     const vehicles = getStorageItem<Vehicle[]>("sv_vehicles", []);
     const logs = getStorageItem<any[]>("sv_daily_service_logs", []);
 
-    const SIMULATION_DATE = "2026-05-30";
+    const now = new Date();
+    const SIMULATION_DATE = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     const list = apartments.map(apt => {
       const aptCustomers = customers.filter(c => c.apartment_id === apt.id);

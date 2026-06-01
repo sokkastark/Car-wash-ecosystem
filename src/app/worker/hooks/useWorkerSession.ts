@@ -18,7 +18,10 @@ export interface VehicleTask {
   markedAt?: string | null;
 }
 
-const TODAY_SIMULATION_DATE = "2026-05-30";
+const getLocalDateString = (d = new Date()) => {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+const TODAY_SIMULATION_DATE = getLocalDateString();
 
 export function useWorkerSession() {
   const [workers, setWorkers] = useState<Worker[]>([]);

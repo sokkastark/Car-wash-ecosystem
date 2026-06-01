@@ -66,9 +66,18 @@ export default function ServiceCalendar({
   setSelectedVehicleId,
   vehicleLogs
 }: ServiceCalendarProps) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthNum = now.getMonth() + 1; // 1-indexed
+  const currentMonthName = now.toLocaleString("en-US", { month: "long" });
+  
+  // Get number of days in current month dynamically
+  const daysInMonth = new Date(currentYear, currentMonthNum, 0).getDate();
+
   const getDayStatus = (day: number): "washed" | "skipped" | "missed" | "none" => {
     const dayStr = String(day).padStart(2, "0");
-    const dateStr = `2026-05-${dayStr}`;
+    const monthStr = String(currentMonthNum).padStart(2, "0");
+    const dateStr = `${currentYear}-${monthStr}-${dayStr}`;
     const log = vehicleLogs.find(l => l.log_date === dateStr);
     
     if (!log) return "none";
@@ -86,7 +95,7 @@ export default function ServiceCalendar({
     <section className="glass-panel" style={{ padding: '20px' }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <h2 style={{ fontSize: '1rem', color: '#475569', textTransform: 'uppercase', margin: 0, fontWeight: 700, letterSpacing: '0.02em' }}>
-          May 2026 Wash Streak
+          {currentMonthName} {currentYear} Wash Streak
         </h2>
         {customer.vehicles.length > 1 && (
           <select 
@@ -101,7 +110,7 @@ export default function ServiceCalendar({
       </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '20px' }}>
-        {Array.from({ length: 31 }, (_, i) => {
+        {Array.from({ length: daysInMonth }, (_, i) => {
           const day = i + 1;
           return <CalendarDay key={day} day={day} status={getDayStatus(day)} />;
         })}

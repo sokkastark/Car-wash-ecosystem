@@ -74,8 +74,7 @@ export default function AdminDashboard() {
   });
 
   // --- Skipped Cleanings Today details for Live Feed ---
-  const todayYM = "2026-05-30"; // Platform May 2026 cycle active date
-  const todayLogs = allLogs.filter(l => l.log_date === todayYM && l.status === "skipped");
+  const todayLogs = allLogs.filter(l => l.log_date === todayStr && l.status === "skipped");
   const workerMap = new Map(workers.map(w => [w.id, w.name]));
   const vehicleMap = new Map(allVehicles.map(v => [v.id, v]));
 

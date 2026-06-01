@@ -184,7 +184,9 @@ export default function CustomerDashboard() {
       if (paymentsItem) {
         const payments = JSON.parse(paymentsItem);
         if (Array.isArray(payments)) {
-          const paymentId = `pay-${vehicleId}-2026-05`;
+          const now = new Date();
+          const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+          const paymentId = `pay-${vehicleId}-${currentYM}`;
           const payIndex = payments.findIndex((p: any) => p.id === paymentId);
           if (payIndex !== -1) {
             const veh = vehicles[index];
@@ -259,7 +261,10 @@ export default function CustomerDashboard() {
     if (customer) {
       const reqs = mockStorage.getInteriorCleaningRequests(customer.id);
       setInteriorRequests(reqs);
-      const allPayments = mockStorage.getInflowPayments("05", "2026");
+      const now = new Date();
+      const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+      const currentYear = String(now.getFullYear());
+      const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
       const customerPayments = allPayments.filter(p => p.customer_id === customer.id);
       setPayments(customerPayments);
     }
@@ -268,8 +273,19 @@ export default function CustomerDashboard() {
   // 🧪 Helper to get precise today's status including alternate-day roster calculation
   const getVehicleStatusForDate = (veh: any, allLogs: DailyServiceLog[]) => {
     const isAlternate = veh.planId === "plan-alternate" || veh.planName.toLowerCase().includes("alternate");
-    const yesterdayLog = allLogs.find(l => l.vehicle_id === veh.id && l.log_date === "2026-05-29");
-    const todayLog = allLogs.find(l => l.vehicle_id === veh.id && l.log_date === "2026-05-30");
+    
+    const getLocalDateString = (d: Date) => {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    };
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const todayStr = getLocalDateString(today);
+    const yesterdayStr = getLocalDateString(yesterday);
+
+    const yesterdayLog = allLogs.find(l => l.vehicle_id === veh.id && l.log_date === yesterdayStr);
+    const todayLog = allLogs.find(l => l.vehicle_id === veh.id && l.log_date === todayStr);
 
     if (isAlternate && yesterdayLog?.status === "washed") {
       return {
