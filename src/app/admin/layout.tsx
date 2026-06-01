@@ -81,6 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarLink href={`${prefix}/workers`} emoji="👷" label="Workforce" active={isActive("/workers")} />
           <SidebarLink href={`${prefix}/finances`} emoji="💰" label="Finances & Reports" active={isActive("/finances")} />
           <SidebarLink href={`${prefix}/analytics`} emoji="📈" label="Analytics" active={isActive("/analytics")} />
+          <SidebarLink href={`${prefix}/plans`} emoji="📋" label="Subscription Plans" active={isActive("/plans")} />
           <SidebarLink href={`${prefix}/onboarding`} emoji="📁" label="Bulk Onboard" active={isActive("/onboarding")} />
           <SidebarLink href={`${prefix}/sync`} emoji="🔄" label="Cloud & Device Sync" active={isActive("/sync")} />
           <SidebarLink href={`${prefix}/trash`} emoji="🗑" label="Trash Bin" active={isActive("/trash")} />

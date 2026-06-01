@@ -102,6 +102,29 @@ export const mockStorage = {
     initializeMockDatabase();
     return getStorageItem<SubscriptionPlan[]>("sv_plans", DEFAULT_PLANS);
   },
+  addPlan(plan: SubscriptionPlan): boolean {
+    initializeMockDatabase();
+    const plans = getStorageItem<SubscriptionPlan[]>("sv_plans", DEFAULT_PLANS);
+    plans.push(plan);
+    setStorageItem("sv_plans", plans);
+    return true;
+  },
+  updatePlan(updated: SubscriptionPlan): boolean {
+    initializeMockDatabase();
+    const plans = getStorageItem<SubscriptionPlan[]>("sv_plans", DEFAULT_PLANS);
+    const idx = plans.findIndex(p => p.id === updated.id);
+    if (idx === -1) return false;
+    plans[idx] = updated;
+    setStorageItem("sv_plans", plans);
+    return true;
+  },
+  deletePlan(id: string): boolean {
+    initializeMockDatabase();
+    const plans = getStorageItem<SubscriptionPlan[]>("sv_plans", DEFAULT_PLANS);
+    const updated = plans.filter(p => p.id !== id);
+    setStorageItem("sv_plans", updated);
+    return true;
+  },
 
   // Daily service schedules & logs
   getDailyServiceLogs: serviceOps.getDailyServiceLogs,

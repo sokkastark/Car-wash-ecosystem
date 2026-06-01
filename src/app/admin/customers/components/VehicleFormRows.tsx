@@ -118,8 +118,7 @@ export default function VehicleFormRows({
                 <select 
                   value={veh.planId} 
                   onChange={(e) => onVehicleChange(index, "planId", e.target.value)}
-                  disabled={veh.customPrice.trim() !== ""}
-                  style={{ padding: "8px", background: "hsl(var(--bg-dark))", border: "1px solid hsl(var(--border-muted))", borderRadius: "var(--radius-md)", color: "white", opacity: veh.customPrice.trim() !== "" ? 0.6 : 1 }}
+                  style={{ padding: "8px", background: "hsl(var(--bg-dark))", border: "1px solid hsl(var(--border-muted))", borderRadius: "var(--radius-md)", color: "white" }}
                 >
                   <option value="">Select Plan</option>
                   {plans.map(p => {
