@@ -16,7 +16,34 @@ export const csvOps = {
  
     const blockMap = new Map(blocks.map(b => [b.name.toLowerCase(), b.id]));
     const planMap = new Map(plans.map(p => [p.name.toLowerCase(), p.id]));
-    const workerMap = new Map(workers.filter(w => w.role === "washer").map(w => [w.name.trim().toLowerCase(), w.id]));
+    // Build worker map with both full name and first-name-only keys for flexible CSV matching
+    const workerMap = new Map<string, string>();
+    workers.filter(w => w.role === "washer").forEach(w => {
+      const fullKey = w.name.trim().toLowerCase();
+      workerMap.set(fullKey, w.id);
+      // Also index by first name only (e.g. "shanmugha" maps to same worker)
+      const firstKey = fullKey.split(" ")[0];
+      if (firstKey && !workerMap.has(firstKey)) {
+        workerMap.set(firstKey, w.id);
+      }
+    });
+    // Fuzzy lookup helper: tries exact, then first-word, then partial includes
+    const findWorkerId = (rawName: string): string | null => {
+      if (!rawName) return null;
+      const key = rawName.trim().toLowerCase();
+      if (workerMap.has(key)) return workerMap.get(key)!;
+      // Try first word match
+      const firstWord = key.split(" ")[0];
+      if (workerMap.has(firstWord)) return workerMap.get(firstWord)!;
+      // Try includes match
+      const entries = Array.from(workerMap.entries());
+      for (let j = 0; j < entries.length; j++) {
+        const mapKey = entries[j][0];
+        const id = entries[j][1];
+        if (mapKey.includes(key) || key.includes(mapKey)) return id;
+      }
+      return null;
+    };
     
     const complexImportCounts: Record<string, number> = {};
 
@@ -101,8 +128,8 @@ export const csvOps = {
           customPriceVal = row.customPrice;
         }
 
-        const assignedWorkerName = (row.assignedWorker || "").trim().toLowerCase();
-        const workerId = assignedWorkerName ? workerMap.get(assignedWorkerName) : null;
+        const assignedWorkerName = (row.assignedWorker || "").trim();
+        const workerId = assignedWorkerName ? findWorkerId(assignedWorkerName) : null;
         if (workerId) {
           const wObj = workers.find(w => w.id === workerId);
           if (wObj) {

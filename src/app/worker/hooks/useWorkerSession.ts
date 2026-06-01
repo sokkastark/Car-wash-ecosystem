@@ -61,9 +61,14 @@ export function useWorkerSession() {
 
     const cachedWorkerId = localStorage.getItem("sv_logged_in_worker_id");
     if (cachedWorkerId) {
+      // Always load fresh from storage to pick up any admin changes (new complex assignments, etc.)
       const match = wList.find(w => w.id === cachedWorkerId);
       if (match && match.is_active) {
         setLoggedInWorker(match);
+        console.log("[useWorkerSession] Restored session for:", match.name, "| Assigned complexes:", match.assigned_complex_ids);
+      } else {
+        // Worker deactivated or not found — clear stale cache
+        localStorage.removeItem("sv_logged_in_worker_id");
       }
     }
 
@@ -317,6 +322,7 @@ export function useWorkerSession() {
       const match = wList.find(w => w.id === cachedWorkerId);
       if (match && match.is_active) {
         setLoggedInWorker(match);
+        console.log("[useWorkerSession] Manual refresh — complexes:", match.assigned_complex_ids);
       }
     }
   };

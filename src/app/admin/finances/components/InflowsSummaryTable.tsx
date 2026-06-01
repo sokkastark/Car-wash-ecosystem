@@ -8,9 +8,15 @@ interface InflowsSummaryTableProps {
   payments: InflowPayment[];
   onUpdateStatus: (id: string, status: "pending" | "paid" | "deferred") => void;
   onDeleteAdHoc: (id: string) => void;
+  month?: string;
+  year?: string;
 }
 
-export default function InflowsSummaryTable({ payments, onUpdateStatus, onDeleteAdHoc }: InflowsSummaryTableProps) {
+export default function InflowsSummaryTable({ payments, onUpdateStatus, onDeleteAdHoc, month, year }: InflowsSummaryTableProps) {
+  const now = new Date();
+  const currentMonthName = (month && year)
+    ? new Date(Number(year), Number(month) - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+    : now.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -105,7 +111,7 @@ export default function InflowsSummaryTable({ payments, onUpdateStatus, onDelete
                   {(pay.status === "pending" || pay.status === "deferred") && (
                     <button
                       onClick={() => {
-                        const message = `Dear Resident, your carwash billing of ₹${pay.amount} for May 2026 is currently outstanding. Please tap here to complete your UPI payment.`;
+                        const message = `Dear Resident, your carwash billing of ₹${pay.amount} for ${currentMonthName} is currently outstanding. Please tap here to complete your UPI payment.`;
                         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
                       }}
                       style={{ background: "none", border: "none", color: "#25D366", fontSize: "1.2rem", cursor: "pointer", padding: "4px", display: "inline-flex", alignItems: "center" }}

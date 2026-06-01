@@ -59,17 +59,25 @@ export default function CustomerLogin({
             <input 
               type="text" 
               value={customerId} 
-              onChange={(e) => setCustomerId(e.target.value)} 
-            placeholder="Enter your Gated Resident ID"
+              onChange={(e) => setCustomerId(e.target.value.replace(/[^A-Z0-9]/gi, "").toUpperCase())} 
+              placeholder="e.g. A1J5A9Y4"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              inputMode="text"
               style={{
                 padding: "16px 20px",
                 background: "rgba(255, 255, 255, 0.6)",
                 border: "1px solid rgba(0, 0, 0, 0.08)",
                 borderRadius: "9999px",
                 color: "#0f172a",
-                fontSize: "1rem",
+                fontSize: "1.1rem",
                 outline: "none",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.01)"
+                boxShadow: "0 4px 12px rgba(0,0,0,0.01)",
+                letterSpacing: "0.08em",
+                fontWeight: 700,
+                fontFamily: "monospace"
               }}
             />
           </div>

@@ -37,7 +37,10 @@ export default function WorkerChecklist() {
     triggerDbRefresh
   } = useWorkerSession();
 
-  const assignedComplexes = apartments.filter(a => loggedInWorker?.assigned_complex_ids?.includes(a.id));
+  // If worker has assigned complexes, show only those; otherwise fallback to all apartments
+  const assignedComplexes = loggedInWorker?.assigned_complex_ids?.length
+    ? apartments.filter(a => loggedInWorker.assigned_complex_ids!.includes(a.id))
+    : apartments;
   const finishedCount = tasks.filter(t => t.status !== "pending").length;
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -76,6 +79,7 @@ export default function WorkerChecklist() {
             activeWorkerRole={loggedInWorker.role}
             assistantMessage={assistantMessage}
             setActiveTab={setActiveTab}
+            onSyncRoster={triggerDbRefresh}
           />
         )}
 

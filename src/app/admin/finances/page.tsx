@@ -264,6 +264,7 @@ export default function FinancesPage() {
               {activeLedgerTab === "inflows" ? (
                 <InflowsSummaryTable 
                   payments={filteredPayments} onUpdateStatus={handlePaymentStatusChange} onDeleteAdHoc={handleAdHocDelete} 
+                  month={selectedMonth} year={selectedYear}
                 />
               ) : (
                 selectedAptId ? (

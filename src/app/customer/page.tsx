@@ -15,6 +15,12 @@ export default function CustomerDashboard() {
   const [customerId, setCustomerId] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [customer, setCustomer] = useState<DetailedCustomer | null>(null);
+
+  // Dynamic month/year — always current, never hardcoded
+  const now = new Date();
+  const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+  const currentYear = String(now.getFullYear());
+  const currentMonthName = now.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   
   const [complaintText, setComplaintText] = useState("");
   const [complaintSuccess, setComplaintSuccess] = useState(false);
@@ -52,15 +58,29 @@ export default function CustomerDashboard() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!customerId.trim()) {
-      setErrorMessage("Please enter a valid Customer ID.");
+    const rawInput = customerId.trim();
+    if (!rawInput) {
+      setErrorMessage("Please enter a valid Resident ID.");
       return;
     }
 
+    // Normalize: strip non-alphanumeric characters and uppercase for robust matching
+    const normalize = (s: string) => s.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+    const normalizedInput = normalize(rawInput);
+
     const allCustomers = mockStorage.getCustomersDetailed();
-    const match = allCustomers.find(
-      c => c.customCustomerId.toLowerCase() === customerId.trim().toLowerCase()
+    
+    // Primary match: normalized Resident ID (A1J5A9Y4 style)
+    let match = allCustomers.find(
+      c => normalize(c.customCustomerId || "") === normalizedInput
     );
+
+    // Fallback: match by flat number (exact) — helpful if user enters just their flat no
+    if (!match && normalizedInput.length >= 2) {
+      match = allCustomers.find(
+        c => normalize(c.flatNo || "") === normalizedInput
+      );
+    }
 
     if (match) {
       setCustomer(match);
@@ -69,11 +89,11 @@ export default function CustomerDashboard() {
       }
       
       const complaints = mockStorage.getComplaints().filter(
-        comp => comp.customer_id === match.id
+        comp => comp.customer_id === match!.id
       );
       setActiveComplaints(complaints);
     } else {
-      setErrorMessage("No resident profile matched this ID. Please verify your ID.");
+      setErrorMessage("No resident profile matched this ID. Please verify your ID or contact your building supervisor.");
     }
   };
 
@@ -89,7 +109,7 @@ export default function CustomerDashboard() {
 
   useEffect(() => {
     if (customer) {
-      const allPayments = mockStorage.getInflowPayments("05", "2026");
+      const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
       const customerPayments = allPayments.filter(p => p.customer_id === customer.id);
       setPayments(customerPayments);
     }
@@ -140,6 +160,32 @@ export default function CustomerDashboard() {
         });
       }
     }
+  }, [customer]);
+
+  // Auto-refresh data when user returns to this browser tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && customer) {
+        const allLogs = mockStorage.getCustomerDailyLogs(customer.id);
+        setVehicleLogs(allLogs);
+        const reqs = mockStorage.getInteriorCleaningRequests(customer.id);
+        setInteriorRequests(reqs);
+        const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
+        const customerPayments = allPayments.filter((p: any) => p.customer_id === customer.id);
+        setPayments(customerPayments);
+        const complaints = mockStorage.getComplaints().filter(
+          (comp: any) => comp.customer_id === customer.id
+        );
+        setActiveComplaints(complaints);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    // Also listen for cloud sync completing
+    window.addEventListener("db_cloud_sync_completed", handleVisibilityChange as any);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("db_cloud_sync_completed", handleVisibilityChange as any);
+    };
   }, [customer]);
 
   const handleComplaintSubmit = (e: React.FormEvent) => {
@@ -220,7 +266,7 @@ export default function CustomerDashboard() {
         const allLogs = mockStorage.getCustomerDailyLogs(customer.id);
         setVehicleLogs(allLogs);
         
-        const allPayments = mockStorage.getInflowPayments("05", "2026");
+        const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
         const customerPayments = allPayments.filter(p => p.customer_id === customer.id);
         setPayments(customerPayments);
       }
@@ -245,7 +291,7 @@ export default function CustomerDashboard() {
     // Refresh requests and payments
     const reqs = mockStorage.getInteriorCleaningRequests(customer.id);
     setInteriorRequests(reqs);
-    const allPayments = mockStorage.getInflowPayments("05", "2026");
+    const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
     const customerPayments = allPayments.filter(p => p.customer_id === customer.id);
     setPayments(customerPayments);
 
@@ -443,7 +489,7 @@ export default function CustomerDashboard() {
         {/* Sleek Subdomain Shift Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <span style={{ fontSize: "0.8rem", color: "#5b6df4", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-title)" }}>
-            Today's Status • May 30, 2026
+            Today's Status • {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
           </span>
           <button 
             onClick={() => { setCustomer(null); setCustomerId(""); }}
@@ -601,7 +647,7 @@ export default function CustomerDashboard() {
                       margin: 0,
                       fontFamily: "var(--font-title)"
                     }}>
-                      Hey {customer.name.split(" ")[0]}, Good morning! ☀️
+                      Hey {customer.name.split(" ")[0]}, {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning! ☀️" : h < 17 ? "Good afternoon! 🌤️" : h < 21 ? "Good evening! 🌆" : "Good night! 🌙"; })()}
                     </h3>
                     
                     <p style={{ 

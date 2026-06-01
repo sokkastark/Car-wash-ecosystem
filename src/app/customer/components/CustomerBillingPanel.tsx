@@ -6,9 +6,15 @@ import { DetailedCustomer, mockStorage } from "@/lib/mockStorage";
 interface CustomerBillingPanelProps {
   payments: any[];
   customer: DetailedCustomer;
+  month?: string;
+  year?: string;
 }
 
-export default function CustomerBillingPanel({ payments, customer }: CustomerBillingPanelProps) {
+export default function CustomerBillingPanel({ payments, customer, month, year }: CustomerBillingPanelProps) {
+  const now = new Date();
+  const currentMonthName = (month && year)
+    ? new Date(Number(year), Number(month) - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+    : now.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   const hasOutstanding = payments.some(p => p.status === 'pending' || p.status === 'deferred');
 
   // Calculate overall billed total for this month's payments
@@ -40,7 +46,7 @@ export default function CustomerBillingPanel({ payments, customer }: CustomerBil
   return (
     <section className="glass-panel" style={{ padding: '20px' }}>
       <h2 style={{ fontSize: '1rem', color: '#475569', marginBottom: '14px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.02em' }}>
-        Billing & Invoices (May 2026)
+        Billing & Invoices ({currentMonthName})
       </h2>
 
       {/* Overall Billed Total Card */}
@@ -241,7 +247,7 @@ export default function CustomerBillingPanel({ payments, customer }: CustomerBil
             <span>Outstanding Dues Reminder</span>
           </div>
           <p style={{ margin: 0, color: '#475569', fontSize: '0.825rem', lineHeight: '1.4' }}>
-            Dear Resident, your carwash billing for <b>May 2026</b> is currently outstanding. Please tap the button below to notify your supervisor or clear your dues.
+            Dear Resident, your carwash billing for <b>{currentMonthName}</b> is currently outstanding. Please tap the button below to notify your supervisor or clear your dues.
           </p>
           <button 
             onClick={() => {

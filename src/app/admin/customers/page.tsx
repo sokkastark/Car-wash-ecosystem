@@ -28,6 +28,9 @@ export default function CustomersRegistry() {
   // Individual complex search query state
   const [searchQueries, setSearchQueries] = useState<Record<string, string>>({});
 
+  // Individual complex worker filter state
+  const [selectedWorkerFilters, setSelectedWorkerFilters] = useState<Record<string, string>>({});
+
   // Modal and Selection States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -119,55 +122,94 @@ export default function CustomersRegistry() {
                   {/* Accordion Content */}
                   {isExpanded && (
                     <div style={{ padding: "12px 24px" }}>
-                      {/* Search Bar for this individual complex */}
-                      <div style={{ 
-                        marginBottom: "16px", 
-                        display: "flex", 
-                        gap: "12px", 
-                        alignItems: "center",
-                        background: "hsla(var(--bg-dark) / 0.15)",
-                        border: "1px solid hsl(var(--border-muted))",
-                        borderRadius: "var(--radius-md)",
-                        padding: "6px 14px"
-                      }}>
-                        <span style={{ fontSize: "1.1rem" }}>🔍</span>
-                        <input
-                          type="text"
-                          placeholder={`Search residents in ${apt.name} by Name, Flat No, Phone, ID, or License...`}
-                          value={searchQueries[apt.id] || ""}
-                          onChange={(e) => setSearchQueries(prev => ({ ...prev, [apt.id]: e.target.value }))}
-                          style={{
-                            flexGrow: 1,
-                            padding: "8px 0",
-                            background: "transparent",
-                            border: "none",
-                            color: "white",
-                            fontSize: "0.9rem",
-                            outline: "none"
-                          }}
-                        />
-                        {(searchQueries[apt.id] || "") && (
-                          <button
-                            onClick={() => setSearchQueries(prev => ({ ...prev, [apt.id]: "" }))}
+                      {/* Search & Filter Actions Row */}
+                      <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
+                        {/* Search Input */}
+                        <div style={{ 
+                          flexGrow: 1, 
+                          display: "flex", 
+                          gap: "12px", 
+                          alignItems: "center",
+                          background: "hsla(var(--bg-dark) / 0.15)",
+                          border: "1px solid hsl(var(--border-muted))",
+                          borderRadius: "var(--radius-md)",
+                          padding: "6px 14px"
+                        }}>
+                          <span style={{ fontSize: "1.1rem" }}>🔍</span>
+                          <input
+                            type="text"
+                            placeholder={`Search residents in ${apt.name} by Name, Flat No, Phone, ID, or License...`}
+                            value={searchQueries[apt.id] || ""}
+                            onChange={(e) => setSearchQueries(prev => ({ ...prev, [apt.id]: e.target.value }))}
                             style={{
-                              background: "hsla(var(--border-muted) / 0.5)",
+                              flexGrow: 1,
+                              padding: "8px 0",
+                              background: "transparent",
                               border: "none",
                               color: "white",
-                              borderRadius: "var(--radius-sm)",
-                              padding: "4px 10px",
-                              cursor: "pointer",
-                              fontSize: "0.75rem",
-                              fontWeight: 600
+                              fontSize: "0.9rem",
+                              outline: "none"
                             }}
-                          >
-                            Clear
-                          </button>
-                        )}
+                          />
+                          {(searchQueries[apt.id] || "") && (
+                            <button
+                              onClick={() => setSearchQueries(prev => ({ ...prev, [apt.id]: "" }))}
+                              style={{
+                                background: "hsla(var(--border-muted) / 0.5)",
+                                border: "none",
+                                color: "white",
+                                borderRadius: "var(--radius-sm)",
+                                padding: "4px 10px",
+                                cursor: "pointer",
+                                fontSize: "0.75rem",
+                                fontWeight: 600
+                              }}
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Worker Dropdown Filter */}
+                        <select
+                          value={selectedWorkerFilters[apt.id] || ""}
+                          onChange={(e) => setSelectedWorkerFilters(prev => ({ ...prev, [apt.id]: e.target.value }))}
+                          style={{
+                            padding: "12px 16px",
+                            borderRadius: "var(--radius-md)",
+                            border: "1px solid hsl(var(--border-muted))",
+                            background: "hsla(var(--bg-dark) / 0.3)",
+                            color: "white",
+                            outline: "none",
+                            fontSize: "0.875rem",
+                            cursor: "pointer",
+                            minWidth: "180px"
+                          }}
+                        >
+                          <option value="" style={{ background: "hsl(var(--bg-dark))" }}>All Cleaners</option>
+                          {workers
+                            .filter(w => w.role === "washer")
+                            .map(w => (
+                              <option key={w.id} value={w.id} style={{ background: "hsl(var(--bg-dark))" }}>
+                                {w.name}
+                              </option>
+                            ))
+                          }
+                        </select>
                       </div>
 
                       {(() => {
                         const query = (searchQueries[apt.id] || "").trim().toLowerCase();
+                        const selectedWorkerId = selectedWorkerFilters[apt.id] || "";
+
                         const filteredCustomers = aptCustomers.filter(c => {
+                          // 1. Worker filter check
+                          if (selectedWorkerId) {
+                            const hasWorker = c.vehicles.some(v => v.assignedWorkerId === selectedWorkerId);
+                            if (!hasWorker) return false;
+                          }
+
+                          // 2. Query search check
                           if (!query) return true;
                           
                           const matchName = (c.name || "").toLowerCase().includes(query);

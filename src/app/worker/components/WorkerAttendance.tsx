@@ -15,11 +15,12 @@ interface WorkerAttendanceProps {
   activeWorkerName: string;
   activeWorkerRole: string;
   assistantMessage: string;
-  setActiveTab: (tab: "attendance" | "checklist" | "profile") => void;
+  setActiveTab: (tab: "attendance" | "checklist" | "profile" | "settings") => void;
+  onSyncRoster?: () => void;
 }
 
 export default function WorkerAttendance({
-  assignedComplexes, onCheckIn, onCheckOut, onResetSession, session, finishedCount, totalCount, activeWorkerName, activeWorkerRole, assistantMessage, setActiveTab
+  assignedComplexes, onCheckIn, onCheckOut, onResetSession, session, finishedCount, totalCount, activeWorkerName, activeWorkerRole, assistantMessage, setActiveTab, onSyncRoster
 }: WorkerAttendanceProps) {
   const {
     selectedComplexId, setSelectedComplexId, gpsLoading, gpsError, timerText, handleGPSCheckIn, handleCheckOut
@@ -81,6 +82,26 @@ export default function WorkerAttendance({
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {!wantsCheckIn ? (
             <>
+              {/* Sync Roster Banner — shown when no complexes are assigned yet */}
+              {assignedComplexes.length === 0 && (
+                <div className="worker-premium-card" style={{ display: "flex", gap: "14px", alignItems: "center", padding: "14px !important", background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.2) !important" }}>
+                  <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>⚠️</span>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ fontSize: "0.8rem", color: "#f59e0b", display: "block", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em" }}>No Complexes Assigned</strong>
+                    <p style={{ fontSize: "0.8rem", color: "#475569", margin: 0, marginTop: "2px" }}>Ask your admin to assign you to a complex, then tap Sync below.</p>
+                  </div>
+                  {onSyncRoster && (
+                    <button
+                      type="button"
+                      onClick={onSyncRoster}
+                      style={{ background: "rgba(168, 85, 247, 0.1)", border: "1px solid rgba(168, 85, 247, 0.3)", color: "#a855f7", borderRadius: "12px", padding: "8px 14px", fontSize: "0.775rem", fontWeight: 700, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
+                    >
+                      🔄 Sync
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Option A: Preview Vehicles */}
               <div 
                 className="worker-premium-card clickable" onClick={() => setActiveTab("checklist")}
