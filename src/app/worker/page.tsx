@@ -32,7 +32,8 @@ export default function WorkerChecklist() {
     handleSkipSubmit,
     markAllWashed,
     undoMarkAll,
-    hasUndo
+    hasUndo,
+    triggerDbRefresh
   } = useWorkerSession();
 
   const assignedComplexes = apartments.filter(a => loggedInWorker?.assigned_complex_ids?.includes(a.id));
@@ -43,7 +44,7 @@ export default function WorkerChecklist() {
     return (
       <div className="worker-theme-wrapper" style={{ minHeight: "100vh", width: "100%" }}>
         <div style={{ padding: "20px 16px", maxWidth: "480px", margin: "0 auto" }}>
-          <WorkerLogin workers={workers} onLoginSuccess={handleLoginSuccess} />
+          <WorkerLogin workers={workers} onLoginSuccess={handleLoginSuccess} onDbRefresh={triggerDbRefresh} />
         </div>
       </div>
     );

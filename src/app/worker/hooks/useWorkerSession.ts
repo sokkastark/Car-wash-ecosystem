@@ -279,6 +279,20 @@ export function useWorkerSession() {
     setAssistantMessage("Shift checklist state successfully restored! 🔄");
   };
 
+  const triggerDbRefresh = () => {
+    const wList = mockStorage.getWorkers();
+    const aptList = mockStorage.getApartments();
+    setWorkers(wList);
+    setApartments(aptList);
+    const cachedWorkerId = localStorage.getItem("sv_logged_in_worker_id");
+    if (cachedWorkerId) {
+      const match = wList.find(w => w.id === cachedWorkerId);
+      if (match && match.is_active) {
+        setLoggedInWorker(match);
+      }
+    }
+  };
+
   return {
     workers,
     apartments,
@@ -302,6 +316,7 @@ export function useWorkerSession() {
     handleSkipSubmit,
     markAllWashed,
     undoMarkAll,
-    hasUndo: logsBackup !== null
+    hasUndo: logsBackup !== null,
+    triggerDbRefresh
   };
 }
