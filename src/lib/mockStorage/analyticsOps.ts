@@ -50,7 +50,7 @@ export const analyticsOps = {
             apartmentName: aptName,
             licensePlate: v.license_plate,
             vehicleType: v.vehicle_type,
-            planName: plans.find(p => p.id === v.plan_id)?.name || "Standard Plan",
+            planName: v.custom_price !== null ? "Custom Plan" : (plans.find(p => p.id === v.plan_id)?.name || "Standard Plan"),
             basePrice,
             customPrice: v.custom_price,
             loss: difference

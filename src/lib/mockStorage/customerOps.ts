@@ -46,7 +46,7 @@ export const customerOps = {
           model: veh.model,
           color: veh.color,
           planId: veh.plan_id,
-          planName: plan?.name || "No Plan",
+          planName: customPriceVal !== null ? "Custom Plan" : (plan?.name || "No Plan"),
           customPrice: customPriceVal,
           assignedWorkerId: veh.assigned_worker_id,
           assignedWorkerName: veh.assigned_worker_id ? (workerMap.get(veh.assigned_worker_id) || "N/A") : "Not Assigned",
