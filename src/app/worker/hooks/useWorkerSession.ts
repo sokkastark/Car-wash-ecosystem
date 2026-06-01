@@ -86,6 +86,31 @@ export function useWorkerSession() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleSyncCompleted = () => {
+      console.log("[useWorkerSession] Dynamic background cloud sync completed! Refreshing active view...");
+      const wList = mockStorage.getWorkers();
+      const aptList = mockStorage.getApartments();
+      setWorkers(wList);
+      setApartments(aptList);
+      const cachedWorkerId = localStorage.getItem("sv_logged_in_worker_id");
+      if (cachedWorkerId) {
+        const match = wList.find(w => w.id === cachedWorkerId);
+        if (match && match.is_active) {
+          setLoggedInWorker(match);
+        }
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("db_cloud_sync_completed", handleSyncCompleted);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("db_cloud_sync_completed", handleSyncCompleted);
+      }
+    };
+  }, []);
+
   const loadTasks = (workerId: string, complexId: string | null) => {
     if (!workerId) return;
     let list = mockStorage.getWorkerTasks(workerId, TODAY_SIMULATION_DATE);
