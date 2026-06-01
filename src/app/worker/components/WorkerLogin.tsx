@@ -25,7 +25,10 @@ export default function WorkerLogin({ workers, onLoginSuccess }: WorkerLoginProp
 
     const matched = workers.find(w => {
       const cleanPhone = w.phone.replace(/[^0-9]/g, "");
-      return cleanPhone.includes(cleanInput) || cleanInput.includes(cleanPhone);
+      // Compare the last 10 digits of both numbers to allow flexible login with/without country code (+91)
+      const phoneLast10 = cleanPhone.slice(-10);
+      const inputLast10 = cleanInput.slice(-10);
+      return phoneLast10 === inputLast10;
     });
 
     if (matched) {
