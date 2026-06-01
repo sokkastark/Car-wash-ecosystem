@@ -78,8 +78,8 @@ The database utilizes Supabase's `auth.jwt()->>'phone'` metadata claim to enforc
 ### Testing RLS locally in Query Editor
 To simulate query outcomes for a specific worker role in the Supabase Studio Query Editor, prepend this snippet to your queries:
 ```sql
--- Emulate login session for worker Rajesh (+919876543210)
-SET LOCAL request.jwt.claims = '{"phone": "+919876543210"}';
+-- Emulate login session for worker Rajesh (+918095695154)
+SET LOCAL request.jwt.claims = '{"phone": "+918095695154"}';
 
 -- This select will filter down to Rajesh's agency logs only
 SELECT * FROM daily_service_logs;

@@ -68,8 +68,8 @@ export const DEFAULT_PLANS: SubscriptionPlan[] = [
 ];
 
 export const DEFAULT_WORKERS: Worker[] = [
-  { id: "worker-rajesh", agency_id: DEMO_AGENCY_ID, name: "Shanmugha P", phone: "+919876543210", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID], monthly_salary: 14000, salary_status: "credited", attendance_today: "present" },
-  { id: "worker-ramesh", agency_id: DEMO_AGENCY_ID, name: "Perumal S", phone: "+919876543211", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID, "prestige-shantiniketan"], monthly_salary: 15500, salary_status: "pending", attendance_today: "present" },
+  { id: "worker-rajesh", agency_id: DEMO_AGENCY_ID, name: "Shanmugha P", phone: "+918095695154", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID], monthly_salary: 14000, salary_status: "credited", attendance_today: "present" },
+  { id: "worker-ramesh", agency_id: DEMO_AGENCY_ID, name: "Perumal S", phone: "+918825492512", role: "washer", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID, "prestige-shantiniketan"], monthly_salary: 15500, salary_status: "pending", attendance_today: "present" },
   { id: "worker-sunil", agency_id: DEMO_AGENCY_ID, name: "Sunil Rao", phone: "+919876543212", role: "supervisor", is_active: true, assigned_complex_ids: [DEMO_APARTMENT_ID, "prestige-shantiniketan", "sobha-dream-acres"], monthly_salary: 22000, salary_status: "credited", attendance_today: "present" },
   { id: "worker-amit", agency_id: DEMO_AGENCY_ID, name: "Amit Shah", phone: "+919876543213", role: "washer", is_active: false, assigned_complex_ids: ["prestige-shantiniketan"], monthly_salary: 12000, salary_status: "pending", attendance_today: "absent" },
   { id: "worker-kiran", agency_id: DEMO_AGENCY_ID, name: "Kiran J", phone: "+919876543214", role: "washer", is_active: true, assigned_complex_ids: ["sobha-dream-acres"], monthly_salary: 13500, salary_status: "credited", attendance_today: "present" },
