@@ -92,74 +92,8 @@ export function useCSVParser() {
     setUploading(true);
     setError(null);
     try {
-      if (isSupabaseConfigured) {
-        // 1. Fetch available blocks & subscription plans for mapping
-        const { data: blocks } = await supabase.from("blocks").select("id, name").eq("apartment_id", DEMO_APARTMENT_ID);
-        const { data: plans } = await supabase.from("subscription_plans").select("id, name").eq("agency_id", DEMO_AGENCY_ID);
-
-        const blockMap = new Map(blocks?.map(b => [b.name.toLowerCase(), b.id]));
-        const planMap = new Map(plans?.map(p => [p.name.toLowerCase(), p.id]));
-
-        for (const row of rows) {
-          // Find matching references
-          const blockId = blockMap.get(row.blockName.toLowerCase()) || null;
-          const planId = planMap.get(row.planName.toLowerCase()) || plans?.[0]?.id; // Default fallback to first plan
-
-          if (!planId) throw new Error(`Subscription plan "${row.planName}" not found. Verify plan names.`);
-
-          // 2. Generate a custom client-facing ID
-          const cleanPhoneSuffix = row.phone.slice(-4);
-          const customId = `SV-BRG-${row.parkingSlot.replace("-", "")}-${cleanPhoneSuffix}`;
-
-          // 3. Insert customer
-          const { data: custData, error: custErr } = await supabase
-            .from("customers")
-            .insert([{
-              agency_id: DEMO_AGENCY_ID,
-              custom_customer_id: customId,
-              name: row.customerName,
-              phone_number: row.phone,
-              email: row.email || null,
-              apartment_id: DEMO_APARTMENT_ID,
-              block_id: blockId,
-              parking_slot: row.parkingSlot
-            }])
-            .select();
-
-          if (custErr) throw custErr;
-          const customerId = custData[0].id;
-
-          // 4. Insert vehicle
-          const { data: vehData, error: vehErr } = await supabase
-            .from("vehicles")
-            .insert([{
-              customer_id: customerId,
-              license_plate: row.licensePlate,
-              vehicle_type: row.vehicleType,
-              make_model: row.makeModel,
-              color: row.color
-            }])
-            .select();
-
-          if (vehErr) throw vehErr;
-          const vehicleId = vehData[0].id;
-
-          // 5. Create active subscription
-          const { error: subErr } = await supabase
-            .from("subscriptions")
-            .insert([{
-              vehicle_id: vehicleId,
-              plan_id: planId,
-              start_date: new Date().toISOString().split("T")[0],
-              is_active: true
-            }]);
-
-          if (subErr) throw subErr;
-        }
-      } else {
-        const res = mockStorage.importCSVRows(rows, fileName);
-        if (!res) throw new Error("Local transaction import failed.");
-      }
+      const res = mockStorage.importCSVRows(rows, fileName);
+      if (!res) throw new Error("Local transaction import failed.");
       return true;
     } catch (err: any) {
       console.error("[useCSVParser] Transaction failed:", err);

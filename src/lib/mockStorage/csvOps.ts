@@ -44,7 +44,19 @@ export const csvOps = {
           blockMap.set(row.blockName.toLowerCase(), blockId);
         }
 
-        const planId = planMap.get(row.planName.toLowerCase()) || plans[0]?.id || "plan-daily";
+        let planId = planMap.get(row.planName.toLowerCase());
+        if (!planId) {
+          const lowerName = (row.planName || "").toLowerCase();
+          if (lowerName.includes("daily")) {
+            planId = "plan-daily";
+          } else if (lowerName.includes("alternate") || lowerName.includes("every other")) {
+            planId = "plan-alternate";
+          } else if (lowerName.includes("weekly")) {
+            planId = "plan-weekly-once";
+          } else {
+            planId = plans[0]?.id || "plan-daily";
+          }
+        }
 
         const cleanPhoneSuffix = row.phone.slice(-4) || "0000";
         const customId = `SV-BRG-${row.parkingSlot.replace("-", "")}-${cleanPhoneSuffix}`;
