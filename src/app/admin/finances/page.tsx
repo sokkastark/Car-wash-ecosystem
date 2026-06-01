@@ -30,8 +30,12 @@ export default function FinancesPage() {
     getFinancialSummary, apartments, workers, customersDetailed 
   } = useAdminData();
 
-  const [selectedMonth, setSelectedMonth] = useState("05");
-  const [selectedYear, setSelectedYear] = useState("2026");
+  // Dynamically default filters to current month & year
+  const currentMonthStr = typeof window !== "undefined" ? String(new Date().getMonth() + 1).padStart(2, "0") : "06";
+  const currentYearStr = typeof window !== "undefined" ? String(new Date().getFullYear()) : "2026";
+
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthStr);
+  const [selectedYear, setSelectedYear] = useState(currentYearStr);
   const [selectedAptId, setSelectedAptId] = useState("");
   const [summary, setSummary] = useState<any>(null);
   const [activeLedgerTab, setActiveLedgerTab] = useState<"inflows" | "outflows">("inflows");
@@ -42,7 +46,7 @@ export default function FinancesPage() {
   const [isInflowModalOpen, setIsInflowModalOpen] = useState(false);
   const [inflowAmount, setInflowAmount] = useState("");
   const [inflowDescription, setInflowDescription] = useState("");
-  const [inflowDate, setInflowDate] = useState("2026-05-01");
+  const [inflowDate, setInflowDate] = useState(`${currentYearStr}-${currentMonthStr}-01`);
   const [inflowStatus, setInflowStatus] = useState<"paid" | "pending" | "deferred">("paid");
 
   useEffect(() => {

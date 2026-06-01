@@ -51,8 +51,11 @@ export const financeOps = {
   getFinancialSummary(month?: string, year?: string) {
     initializeMockDatabase();
     
-    const selectedMonth = month || "05";
-    const selectedYear = year || "2026";
+    const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, "0");
+    const currentYearStr = String(new Date().getFullYear());
+    
+    const selectedMonth = month || currentMonthStr;
+    const selectedYear = year || currentYearStr;
     
     const expenses = this.getExpenses();
     const workers = getStorageItem<Worker[]>("sv_workers", DEFAULT_WORKERS);
