@@ -60,7 +60,7 @@ export default function CustomerLogin({
               type="text" 
               value={customerId} 
               onChange={(e) => setCustomerId(e.target.value)} 
-              placeholder="e.g. SV-BRG-A102-3210"
+            placeholder="Enter your Gated Resident ID"
               style={{
                 padding: "16px 20px",
                 background: "rgba(255, 255, 255, 0.6)",
@@ -91,10 +91,6 @@ export default function CustomerLogin({
             Unlock Dashboard 🔑
           </button>
         </form>
-
-        <div style={{ marginTop: "12px", paddingTop: "18px", borderTop: "1px solid rgba(0, 0, 0, 0.08)", fontSize: "0.825rem", color: "#64748b", lineHeight: "1.4" }}>
-          💡 **Testing Credentials**: Use **`SV-BRG-A102-3210`** (Amit Kumar) to explore populated streaks, pricing, and active washes instantly.
-        </div>
       </div>
 
     </div>

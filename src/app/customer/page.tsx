@@ -72,7 +72,7 @@ export default function CustomerDashboard() {
       );
       setActiveComplaints(complaints);
     } else {
-      setErrorMessage("No resident profile matched this ID. Try 'SV-BRG-A102-3210'.");
+      setErrorMessage("No resident profile matched this ID. Please verify your ID.");
     }
   };
 
