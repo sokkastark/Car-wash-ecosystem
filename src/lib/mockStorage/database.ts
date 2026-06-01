@@ -57,6 +57,52 @@ export const setStorageItem = <T>(key: string, value: T) => {
   }
 };
 
+const writeLocalSeeds = () => {
+  setStorageItem("sv_apartments", DEFAULT_APARTMENTS);
+  setStorageItem("sv_blocks", DEFAULT_BLOCKS);
+  setStorageItem("sv_plans", DEFAULT_PLANS);
+  setStorageItem("sv_workers", DEFAULT_WORKERS);
+  setStorageItem("sv_customers", DEFAULT_CUSTOMERS);
+  setStorageItem("sv_vehicles", DEFAULT_VEHICLES);
+  setStorageItem("sv_complaints", DEFAULT_COMPLAINTS);
+  setStorageItem("sv_upload_logs", DEFAULT_UPLOAD_LOGS);
+  setStorageItem("sv_expenses", DEFAULT_EXPENSES);
+  setStorageItem("sv_trash", []);
+  setStorageItem("sv_interior_requests", []);
+  setStorageItem("sv_inflow_payments", []);
+  setStorageItem("sv_daily_service_logs", []);
+
+  localStorage.setItem("sv_db_initialized_v6", "true");
+};
+
+const repairNaNValues = () => {
+  try {
+    const vehiclesItem = localStorage.getItem("sv_vehicles");
+    if (vehiclesItem) {
+      const vehicles = JSON.parse(vehiclesItem);
+      if (Array.isArray(vehicles)) {
+        let modified = false;
+        const sanitizedVehicles = vehicles.map((v: any) => {
+          if (v.custom_price !== null && v.custom_price !== undefined) {
+            const parsed = Number(v.custom_price);
+            if (isNaN(parsed)) {
+              modified = true;
+              return { ...v, custom_price: null };
+            }
+          }
+          return v;
+        });
+        if (modified) {
+          setStorageItem("sv_vehicles", sanitizedVehicles);
+          console.log("[mockStorage] Repaired corrupted NaN vehicle custom_price entries in localStorage.");
+        }
+      }
+    }
+  } catch (e) {
+    console.error("[mockStorage] Failed to run auto-repair for vehicles:", e);
+  }
+};
+
 export const initializeMockDatabase = (force = false) => {
   if (typeof window === "undefined") return;
 
@@ -70,54 +116,29 @@ export const initializeMockDatabase = (force = false) => {
           if (res.success && res.hasData) {
             console.log("[SyncEngine] Auto-pulled database snapshot from Supabase successfully!");
             window.dispatchEvent(new Event("db_cloud_sync_completed"));
+            repairNaNValues();
+          } else if (res.success && !res.hasData) {
+            // Cloud is empty, initialize with seeds and push
+            if (!localStorage.getItem("sv_db_initialized_v6")) {
+              console.log("[SyncEngine] Cloud database is empty. Initializing with local seed data...");
+              writeLocalSeeds();
+            }
           }
-        }).catch(err => console.error("[SyncEngine] Auto-pull failed:", err));
+        }).catch(err => {
+          console.error("[SyncEngine] Auto-pull failed:", err);
+          // Fallback to local seeds if not initialized
+          if (!localStorage.getItem("sv_db_initialized_v6")) {
+            writeLocalSeeds();
+          }
+        });
       });
+      return; // Stop execution here and await the database fetch outcome
     }
   }
 
   if (force || !localStorage.getItem("sv_db_initialized_v6")) {
-    setStorageItem("sv_apartments", DEFAULT_APARTMENTS);
-    setStorageItem("sv_blocks", DEFAULT_BLOCKS);
-    setStorageItem("sv_plans", DEFAULT_PLANS);
-    setStorageItem("sv_workers", DEFAULT_WORKERS);
-    setStorageItem("sv_customers", DEFAULT_CUSTOMERS);
-    setStorageItem("sv_vehicles", DEFAULT_VEHICLES);
-    setStorageItem("sv_complaints", DEFAULT_COMPLAINTS);
-    setStorageItem("sv_upload_logs", DEFAULT_UPLOAD_LOGS);
-    setStorageItem("sv_expenses", DEFAULT_EXPENSES);
-    setStorageItem("sv_trash", []);
-    setStorageItem("sv_interior_requests", []);
-    setStorageItem("sv_inflow_payments", []);
-    setStorageItem("sv_daily_service_logs", []);
-
-    localStorage.setItem("sv_db_initialized_v6", "true");
+    writeLocalSeeds();
   } else {
-    // Auto-repair corrupted NaN values in existing localStorage keys
-    try {
-      const vehiclesItem = localStorage.getItem("sv_vehicles");
-      if (vehiclesItem) {
-        const vehicles = JSON.parse(vehiclesItem);
-        if (Array.isArray(vehicles)) {
-          let modified = false;
-          const sanitizedVehicles = vehicles.map((v: any) => {
-            if (v.custom_price !== null && v.custom_price !== undefined) {
-              const parsed = Number(v.custom_price);
-              if (isNaN(parsed)) {
-                modified = true;
-                return { ...v, custom_price: null };
-              }
-            }
-            return v;
-          });
-          if (modified) {
-            setStorageItem("sv_vehicles", sanitizedVehicles);
-            console.log("[mockStorage] Repaired corrupted NaN vehicle custom_price entries in localStorage.");
-          }
-        }
-      }
-    } catch (e) {
-      console.error("[mockStorage] Failed to run auto-repair for vehicles:", e);
-    }
+    repairNaNValues();
   }
 };
