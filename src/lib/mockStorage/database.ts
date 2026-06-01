@@ -31,7 +31,7 @@ export const setStorageItem = <T>(key: string, value: T) => {
 
 export const initializeMockDatabase = (force = false) => {
   if (typeof window === "undefined") return;
-  if (force || !localStorage.getItem("sv_db_initialized_v4")) {
+  if (force || !localStorage.getItem("sv_db_initialized_v5")) {
     setStorageItem("sv_apartments", DEFAULT_APARTMENTS);
     setStorageItem("sv_blocks", DEFAULT_BLOCKS);
     setStorageItem("sv_plans", DEFAULT_PLANS);
@@ -138,7 +138,7 @@ export const initializeMockDatabase = (force = false) => {
     }
 
     setStorageItem("sv_daily_service_logs", defaultLogs);
-    localStorage.setItem("sv_db_initialized_v4", "true");
+    localStorage.setItem("sv_db_initialized_v5", "true");
   } else {
     // Auto-repair corrupted NaN values in existing localStorage keys
     try {
