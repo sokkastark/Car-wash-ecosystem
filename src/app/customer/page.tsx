@@ -116,6 +116,42 @@ export default function CustomerDashboard() {
   }, [customer]);
 
   useEffect(() => {
+    const handleSyncCompleted = () => {
+      console.log("[CustomerDashboard] Dynamic background cloud sync completed! Reloading customer data...");
+      if (customer) {
+        const allCustomers = mockStorage.getCustomersDetailed();
+        const updated = allCustomers.find(c => c.id === customer.id);
+        if (updated) {
+          setCustomer(updated);
+        }
+        
+        const complaints = mockStorage.getComplaints().filter(
+          comp => comp.customer_id === customer.id
+        );
+        setActiveComplaints(complaints);
+        
+        const allLogs = mockStorage.getCustomerDailyLogs(customer.id);
+        setVehicleLogs(allLogs);
+        
+        const reqs = mockStorage.getInteriorCleaningRequests(customer.id);
+        setInteriorRequests(reqs);
+        
+        const allPayments = mockStorage.getInflowPayments(currentMonth, currentYear);
+        const customerPayments = allPayments.filter(p => p.customer_id === customer.id);
+        setPayments(customerPayments);
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("db_cloud_sync_completed", handleSyncCompleted);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("db_cloud_sync_completed", handleSyncCompleted);
+      }
+    };
+  }, [customer, currentMonth, currentYear]);
+
+  useEffect(() => {
     if (customer) {
       // 1. Find assigned washer from the first vehicle that has an assigned worker
       const vehiclesWithWorker = customer.vehicles.filter(v => v.assignedWorkerId);

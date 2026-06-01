@@ -150,6 +150,29 @@ export function useAdminData() {
     fetchExpenses();
   }, [fetchApartments, fetchWorkers, fetchComplaints, fetchStats, fetchCustomersDetailed, fetchPlans, fetchTrashItems, fetchUploadLogs, fetchExpenses]);
 
+  useEffect(() => {
+    const handleSyncCompleted = () => {
+      console.log("[useAdminData] Dynamic background cloud sync completed! Refetching all admin states...");
+      fetchApartments();
+      fetchWorkers();
+      fetchComplaints();
+      fetchStats();
+      fetchCustomersDetailed();
+      fetchPlans();
+      fetchTrashItems();
+      fetchUploadLogs();
+      fetchExpenses();
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("db_cloud_sync_completed", handleSyncCompleted);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("db_cloud_sync_completed", handleSyncCompleted);
+      }
+    };
+  }, [fetchApartments, fetchWorkers, fetchComplaints, fetchStats, fetchCustomersDetailed, fetchPlans, fetchTrashItems, fetchUploadLogs, fetchExpenses]);
+
   return {
     apartments,
     workers,

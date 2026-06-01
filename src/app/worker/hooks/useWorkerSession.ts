@@ -312,7 +312,20 @@ export function useWorkerSession() {
     setAssistantMessage("Shift checklist state successfully restored! 🔄");
   };
 
-  const triggerDbRefresh = () => {
+  const triggerDbRefresh = async () => {
+    console.log("[useWorkerSession] Dynamic database refresh triggered. Fetching cloud updates...");
+    try {
+      const { pullFromSupabase } = await import("@/lib/mockStorage/syncEngine");
+      const res = await pullFromSupabase();
+      if (res.success) {
+        console.log("[useWorkerSession] Dynamic background cloud sync completed successfully!");
+      } else {
+        console.warn("[useWorkerSession] Cloud sync warning:", res.error);
+      }
+    } catch (e) {
+      console.error("[useWorkerSession] Cloud sync failed during dynamic refresh:", e);
+    }
+
     const wList = mockStorage.getWorkers();
     const aptList = mockStorage.getApartments();
     setWorkers(wList);
@@ -322,7 +335,7 @@ export function useWorkerSession() {
       const match = wList.find(w => w.id === cachedWorkerId);
       if (match && match.is_active) {
         setLoggedInWorker(match);
-        console.log("[useWorkerSession] Manual refresh — complexes:", match.assigned_complex_ids);
+        console.log("[useWorkerSession] Dynamic refresh completed — complexes:", match.assigned_complex_ids);
       }
     }
   };

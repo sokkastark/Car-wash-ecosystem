@@ -14,7 +14,8 @@ export const SYNC_KEYS = [
   "sv_trash",
   "sv_interior_requests",
   "sv_inflow_payments",
-  "sv_daily_service_logs"
+  "sv_daily_service_logs",
+  "sv_complex_plan_prices"
 ];
 
 /**
