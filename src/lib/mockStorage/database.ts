@@ -24,6 +24,8 @@ export const getStorageItem = <T>(key: string, defaultValue: T): T => {
   return JSON.parse(item);
 };
 
+let syncDebounceTimer: any = null;
+
 export const setStorageItem = <T>(key: string, value: T) => {
   if (typeof window !== "undefined") {
     localStorage.setItem(key, JSON.stringify(value));
@@ -35,9 +37,22 @@ export const setStorageItem = <T>(key: string, value: T) => {
       "sv_trash", "sv_interior_requests", "sv_inflow_payments", "sv_daily_service_logs"
     ];
     if (isSupabaseConfigured && SYNC_KEYS.includes(key)) {
-      import("./syncEngine").then(({ pushToSupabase }) => {
-        pushToSupabase().catch(err => console.error("[SyncEngine] Auto-push failed:", err));
-      });
+      if (syncDebounceTimer) {
+        clearTimeout(syncDebounceTimer);
+      }
+      syncDebounceTimer = setTimeout(() => {
+        import("./syncEngine").then(({ pushToSupabase }) => {
+          pushToSupabase()
+            .then(res => {
+              if (res.success) {
+                console.log("[SyncEngine] Auto-pushed database snapshot to Supabase successfully!");
+              } else {
+                console.warn("[SyncEngine] Auto-push warning:", res.error);
+              }
+            })
+            .catch(err => console.error("[SyncEngine] Auto-push failed:", err));
+        });
+      }, 500); // 500ms debounce
     }
   }
 };
