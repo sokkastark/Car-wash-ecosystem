@@ -7,6 +7,7 @@ interface VehicleTask {
   vehicleId: string;
   license: string;
   model: string;
+  vehicleType: string;
   slot: string;
   parkingSlot: string;
   status: "pending" | "washed" | "skipped" | "missed";
@@ -37,6 +38,61 @@ interface SwipeableCardProps {
   task: VehicleTask;
   toggleStatus: (task: VehicleTask, overrideStatus?: "washed" | "skipped" | "missed" | "pending") => void;
   formatMarkedTime: (isoString?: string | null) => string;
+}
+
+function getVehicleVisuals(vehicleType: string) {
+  const type = (vehicleType || "").toLowerCase().trim();
+  switch (type) {
+    case "sedan":
+      return {
+        emoji: "🚗",
+        label: "Sedan",
+        bg: "linear-gradient(135deg, #FFF9DB 0%, #FFF3BF 100%)",
+        color: "#B7791F"
+      };
+    case "hatchback":
+      return {
+        emoji: "🚗",
+        label: "Hatchback",
+        bg: "linear-gradient(135deg, #E6F4EA 0%, #CEEAD6 100%)",
+        color: "#137333"
+      };
+    case "suv":
+      return {
+        emoji: "🚙",
+        label: "SUV",
+        bg: "linear-gradient(135deg, #E8F0FE 0%, #D2E3FC 100%)",
+        color: "#174EA6"
+      };
+    case "luxury":
+      return {
+        emoji: "🏎️",
+        label: "Luxury",
+        bg: "linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%)",
+        color: "#C2185B"
+      };
+    case "bike":
+      return {
+        emoji: "🏍️",
+        label: "Bike",
+        bg: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+        color: "#3730A3"
+      };
+    case "scooter":
+      return {
+        emoji: "🛵",
+        label: "Scooter",
+        bg: "linear-gradient(135deg, #E6FFFA 0%, #CCFBF1 100%)",
+        color: "#0F766E"
+      };
+    default:
+      return {
+        emoji: "🚗",
+        label: "Car",
+        bg: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
+        color: "#475569"
+      };
+  }
 }
 
 function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardProps) {
@@ -84,6 +140,8 @@ function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardPr
                     task.status === "skipped" ? "checklist-card-skipped" :
                     task.status === "missed" ? "checklist-card-missed" :
                     "checklist-card-pending";
+
+  const visuals = getVehicleVisuals(task.vehicleType);
 
   return (
     <div 
@@ -164,12 +222,35 @@ function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardPr
           zIndex: 2,
           padding: "16px 20px !important",
           display: "flex",
-          justifyContent: "space-between",
+          gap: "14px",
           alignItems: "center",
           transform: `translateX(${swipeOffset}px)`,
           transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
       >
+        {/* Left Visual Avatar Cue */}
+        <div
+          style={{
+            width: "52px",
+            height: "52px",
+            borderRadius: "16px",
+            background: visuals.bg,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.6)"
+          }}
+          title={visuals.label}
+        >
+          <span style={{ fontSize: "1.45rem", lineHeight: 1.1 }}>{visuals.emoji}</span>
+          <span style={{ fontSize: "0.55rem", fontWeight: 800, color: visuals.color, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "1px" }}>
+            {visuals.label}
+          </span>
+        </div>
+
         <div style={{ flex: 1, paddingRight: "10px" }}>
           <span style={{ fontSize: "0.775rem", color: "#64748b", display: "block", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em", marginBottom: "3px" }}>
             {task.blockName} • Flat {task.slot}

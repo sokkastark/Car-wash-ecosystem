@@ -8,6 +8,7 @@ export interface VehicleTask {
   vehicleId: string;
   license: string;
   model: string;
+  vehicleType: string;
   slot: string;
   parkingSlot: string;
   status: "pending" | "washed" | "skipped" | "missed";

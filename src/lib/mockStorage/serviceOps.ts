@@ -58,6 +58,7 @@ export const serviceOps = {
         vehicleId: veh.id,
         license: veh.license_plate,
         model: `${veh.make} ${veh.model}`,
+        vehicleType: veh.vehicle_type,
         slot: cust ? `${cust.flat_no || ""}` : "N/A",
         parkingSlot: cust ? cust.parking_slot : "N/A",
         status: log.status,
