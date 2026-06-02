@@ -222,93 +222,94 @@ function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardPr
           zIndex: 2,
           padding: "16px 20px !important",
           display: "flex",
-          gap: "14px",
+          gap: "16px",
           alignItems: "center",
           transform: `translateX(${swipeOffset}px)`,
           transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
       >
-        {/* Left Visual Avatar Cue */}
+        {/* Left Visual Avatar Cue - Bigger and More Prominent */}
         <div
           style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "16px",
+            width: "58px",
+            height: "58px",
+            borderRadius: "18px",
             background: visuals.bg,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.03)",
-            border: "1px solid rgba(255, 255, 255, 0.6)"
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)",
+            border: "1px solid rgba(255, 255, 255, 0.7)"
           }}
           title={visuals.label}
         >
-          <span style={{ fontSize: "1.45rem", lineHeight: 1.1 }}>{visuals.emoji}</span>
-          <span style={{ fontSize: "0.55rem", fontWeight: 800, color: visuals.color, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "1px" }}>
+          <span style={{ fontSize: "1.65rem", lineHeight: 1.1 }}>{visuals.emoji}</span>
+          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: visuals.color, textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "1px" }}>
             {visuals.label}
           </span>
         </div>
 
-        <div style={{ flex: 1, paddingRight: "10px" }}>
+        {/* Spacious Edge-to-Edge Vehicle Details */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: "0.775rem", color: "#64748b", display: "block", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em", marginBottom: "3px" }}>
             {task.blockName} • Flat {task.slot}
           </span>
-          <strong style={{ fontSize: "1.2rem", fontFamily: "var(--font-title)", color: "#0f172a", display: "block", letterSpacing: "-0.01em" }}>
+          <strong style={{ fontSize: "1.25rem", fontFamily: "var(--font-title)", color: "#0f172a", display: "block", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
             {task.license}
           </strong>
           <span style={{ fontSize: "0.85rem", color: "#475569", display: "block", marginTop: "2px" }}>
             {task.model} <span style={{ color: "#94a3b8", fontSize: "0.8rem", marginLeft: "4px" }}>({task.parkingSlot ? `Slot ${task.parkingSlot}` : "No Slot"})</span>
           </span>
-          {task.interiorFrequency !== undefined && task.interiorFrequency > 0 && (
-            <span style={{
-              fontSize: "0.675rem",
-              background: "rgba(16, 185, 129, 0.08)",
-              border: "1px solid rgba(16, 185, 129, 0.15)",
-              color: "#10b981",
-              padding: "2px 8px",
-              borderRadius: "6px",
-              fontWeight: 700,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              marginTop: "6px"
-            }}>
-              🧼 SUNDAY INTERIOR INCLUDED
-            </span>
-          )}
-          {task.hasInteriorRequest && (
-            <span style={{
-              fontSize: "0.675rem",
-              background: "rgba(168, 85, 247, 0.08)",
-              border: "1px solid rgba(168, 85, 247, 0.15)",
-              color: "#a855f7",
-              padding: "2px 8px",
-              borderRadius: "6px",
-              fontWeight: 700,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              marginTop: "6px",
-              marginLeft: task.interiorFrequency !== undefined && task.interiorFrequency > 0 ? "8px" : "0"
-            }}>
-              🧼 INTERIOR CLEANING REQUESTED
-            </span>
-          )}
-        </div>
-        
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
-          {task.status === "washed" && <span className="status-badge washed">Washed</span>}
-          {task.status === "skipped" && <span className="status-badge skipped">Skipped</span>}
-          {task.status === "missed" && <span className="status-badge missed">Missed</span>}
-          {task.status === "pending" && <span className="status-badge pending">Pending</span>}
-          
-          {task.status !== "pending" && task.markedAt && (
-            <span style={{ fontSize: "0.725rem", color: "#94a3b8", fontFamily: "monospace", fontWeight: 500 }}>
-              at {formatMarkedTime(task.markedAt)}
-            </span>
-          )}
+
+          {/* Bottom Badges & Status Row (Clean and Organized Below Vehicle Info) */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", marginTop: "8px" }}>
+            {/* Real-time Status Badge */}
+            {task.status === "washed" && <span className="status-badge washed" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Washed</span>}
+            {task.status === "skipped" && <span className="status-badge skipped" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Skipped</span>}
+            {task.status === "missed" && <span className="status-badge missed" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Missed</span>}
+            {task.status === "pending" && <span className="status-badge pending" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Pending</span>}
+            
+            {task.status !== "pending" && task.markedAt && (
+              <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "monospace", fontWeight: 600 }}>
+                at {formatMarkedTime(task.markedAt)}
+              </span>
+            )}
+
+            {task.interiorFrequency !== undefined && task.interiorFrequency > 0 && (
+              <span style={{
+                fontSize: "0.675rem",
+                background: "rgba(16, 185, 129, 0.08)",
+                border: "1px solid rgba(16, 185, 129, 0.15)",
+                color: "#10b981",
+                padding: "2px 8px",
+                borderRadius: "6px",
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px"
+              }}>
+                🧼 SUNDAY INTERIOR
+              </span>
+            )}
+            {task.hasInteriorRequest && (
+              <span style={{
+                fontSize: "0.675rem",
+                background: "rgba(168, 85, 247, 0.08)",
+                border: "1px solid rgba(168, 85, 247, 0.15)",
+                color: "#a855f7",
+                padding: "2px 8px",
+                borderRadius: "6px",
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px"
+              }}>
+                🧼 INTERIOR REQUESTED
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
