@@ -1,6 +1,7 @@
 import { InflowPayment, Customer, Vehicle, SubscriptionPlan } from "./types";
 import { getStorageItem, setStorageItem, initializeMockDatabase } from "./database";
 import { DEFAULT_CUSTOMERS, DEFAULT_VEHICLES, DEFAULT_PLANS } from "./seeds";
+import { complexOps } from "./complexOps";
 
 export const inflowOps = {
   getInflowPayments(month: string, year: string): InflowPayment[] {
@@ -36,8 +37,6 @@ export const inflowOps = {
           
           let basePrice = 0;
           if (plan && cust) {
-            // Dynamically import complexOps to avoid circular dependency issues
-            const { complexOps } = require("./complexOps");
             basePrice = complexOps.getPlanPriceForComplex(cust.apartment_id, veh.plan_id, veh.vehicle_type, plans);
           }
           

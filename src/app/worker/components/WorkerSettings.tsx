@@ -7,6 +7,7 @@ export default function WorkerSettings() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [installStatus, setInstallStatus] = useState<"browser" | "standalone" | "installed">("browser");
+  const [isReloading, setIsReloading] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -71,6 +72,7 @@ export default function WorkerSettings() {
 
   const handleHardRefresh = async () => {
     if (typeof window !== "undefined") {
+      setIsReloading(true);
       try {
         if ("caches" in window) {
           const keys = await caches.keys();
@@ -80,10 +82,19 @@ export default function WorkerSettings() {
           const registrations = await navigator.serviceWorker.getRegistrations();
           await Promise.all(registrations.map(r => r.unregister()));
         }
+        try {
+          sessionStorage.clear();
+        } catch (e) {
+          console.warn("sessionStorage clear failed:", e);
+        }
       } catch (err) {
         console.error("Failed to clear PWA cache:", err);
       }
-      window.location.reload();
+      
+      // Append a cache-busting search parameter and force-replace the URL to fetch from server
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("reload_t", Date.now().toString());
+      window.location.replace(currentUrl.toString());
     }
   };
 
@@ -236,26 +247,32 @@ export default function WorkerSettings() {
           
           <button
             onClick={handleHardRefresh}
+            disabled={isReloading}
             style={{
-              background: "rgba(255, 255, 255, 0.8)",
+              background: isReloading ? "rgba(239, 68, 68, 0.05)" : "rgba(255, 255, 255, 0.8)",
               color: "#ef4444",
               border: "1.5px solid rgba(239, 68, 68, 0.2)",
               borderRadius: "9999px",
               padding: "8px 16px",
               fontSize: "0.75rem",
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: isReloading ? "not-allowed" : "pointer",
               fontFamily: "var(--font-title)",
+              opacity: isReloading ? 0.7 : 1,
               transition: "all 0.2s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
+              if (!isReloading) {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)";
+              if (!isReloading) {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)";
+              }
             }}
           >
-            FORCE RELOAD
+            {isReloading ? "RELOADING..." : "FORCE RELOAD"}
           </button>
         </div>
 
