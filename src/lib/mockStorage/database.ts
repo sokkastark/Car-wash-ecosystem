@@ -14,6 +14,25 @@ import {
   DEMO_APARTMENT_ID 
 } from "./seeds";
 
+export function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export function mapPlanId(localId: string): string {
+  if (localId === "plan-daily") return "d1e2f300-0001-44ab-b3c9-4deff111a111";
+  if (localId === "plan-alternate") return "d1e2f300-0002-44ab-b3c9-4deff111a112";
+  if (localId === "plan-weekly-once") return "d1e2f300-0003-44ab-b3c9-4deff111a113";
+  if (localId && localId.length === 36) return localId;
+  return "d1e2f300-0001-44ab-b3c9-4deff111a111";
+}
+
 export const getStorageItem = <T>(key: string, defaultValue: T): T => {
   if (typeof window === "undefined") return defaultValue;
   const item = localStorage.getItem(key);

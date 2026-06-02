@@ -1,8 +1,9 @@
 import { DetailedCustomer, Customer, Vehicle, SubscriptionPlan, Worker, Apartment, Block, DetailedVehicle } from "./types";
-import { getStorageItem, setStorageItem, initializeMockDatabase } from "./database";
+import { getStorageItem, setStorageItem, initializeMockDatabase, generateUUID, mapPlanId } from "./database";
 import { DEFAULT_CUSTOMERS, DEFAULT_VEHICLES, DEFAULT_PLANS, DEFAULT_WORKERS, DEFAULT_APARTMENTS, DEFAULT_BLOCKS, DEMO_AGENCY_ID } from "./seeds";
 import { complexOps } from "./complexOps";
 import { trashOps } from "./trashOps";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const customerOps = {
   getCustomersDetailed(): DetailedCustomer[] {
@@ -86,7 +87,7 @@ export const customerOps = {
     const vehicles = getStorageItem<Vehicle[]>("sv_vehicles", []);
 
     try {
-      const customerId = `cust-${Date.now()}`;
+      const customerId = generateUUID();
       const cleanName = (data.name || "RESIDENT").trim().split(" ")[0].toUpperCase().replace(/[^A-Z0-9]/g, "");
       const cleanFlat = String(data.flatNo || data.parkingSlot || "0").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
       
@@ -119,10 +120,11 @@ export const customerOps = {
       };
       customers.push(newCust);
 
+      const addedVehicles: Vehicle[] = [];
       if (data.vehicles && Array.isArray(data.vehicles)) {
         data.vehicles.forEach((veh: any, i: number) => {
           const newVeh: Vehicle = {
-            id: `veh-${Date.now()}-${i}`,
+            id: generateUUID(),
             customer_id: customerId,
             license_plate: veh.licensePlate,
             vehicle_type: veh.vehicleType,
@@ -135,11 +137,66 @@ export const customerOps = {
             interior_frequency: veh.vehicleType !== "bike" ? (Number(veh.interiorFrequency) || 0) : 0
           };
           vehicles.push(newVeh);
+          addedVehicles.push(newVeh);
         });
       }
 
       setStorageItem("sv_customers", customers);
       setStorageItem("sv_vehicles", vehicles);
+
+      // Background push to Supabase relational tables
+      if (isSupabaseConfigured) {
+        supabase.from("customers").insert([{
+          id: newCust.id,
+          agency_id: newCust.agency_id,
+          custom_customer_id: newCust.custom_customer_id,
+          name: newCust.name,
+          phone_number: newCust.phone_number,
+          email: newCust.email,
+          apartment_id: newCust.apartment_id,
+          block_id: newCust.block_id,
+          parking_slot: newCust.parking_slot
+        }]).then(({ error: custErr }) => {
+          if (custErr) {
+            console.error("[Supabase] Error inserting customer:", custErr);
+            return;
+          }
+
+          if (addedVehicles.length > 0) {
+            const mappedVehs = addedVehicles.map(v => {
+              const dbType = v.vehicle_type === "bike" ? "bike" : v.vehicle_type === "suv" ? "suv" : "car";
+              return {
+                id: v.id,
+                customer_id: v.customer_id,
+                license_plate: v.license_plate,
+                vehicle_type: dbType,
+                make_model: `${v.make} ${v.model}`.trim(),
+                color: v.color
+              };
+            });
+
+            supabase.from("vehicles").insert(mappedVehs).then(({ error: vehErr }) => {
+              if (vehErr) {
+                console.error("[Supabase] Error inserting vehicles:", vehErr);
+                return;
+              }
+
+              // Insert subscriptions
+              const mappedSubs = addedVehicles.map(v => ({
+                id: generateUUID(),
+                vehicle_id: v.id,
+                plan_id: mapPlanId(v.plan_id),
+                start_date: new Date().toISOString().split("T")[0],
+                is_active: true
+              }));
+              supabase.from("subscriptions").insert(mappedSubs).then(({ error: subErr }) => {
+                if (subErr) console.error("[Supabase] Error inserting subscriptions:", subErr);
+              });
+            });
+          }
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);
@@ -180,11 +237,14 @@ export const customerOps = {
       }
       customers[custIndex].custom_customer_id = customId;
 
+      const oldVehicles = vehicles.filter(v => v.customer_id === id);
       vehicles = vehicles.filter(v => v.customer_id !== id);
+      
+      const newVehicles: Vehicle[] = [];
       if (data.vehicles && Array.isArray(data.vehicles)) {
         data.vehicles.forEach((veh: any, i: number) => {
-          vehicles.push({
-            id: veh.id || `veh-${Date.now()}-${i}`,
+          newVehicles.push({
+            id: veh.id || generateUUID(),
             customer_id: id,
             license_plate: veh.licensePlate,
             vehicle_type: veh.vehicleType,
@@ -198,9 +258,77 @@ export const customerOps = {
           });
         });
       }
+      vehicles.push(...newVehicles);
 
       setStorageItem("sv_customers", customers);
       setStorageItem("sv_vehicles", vehicles);
+
+      // Background sync to Supabase relational tables
+      if (isSupabaseConfigured) {
+        // 1. Update customer row
+        supabase.from("customers").update({
+          name: data.name,
+          phone_number: data.phone,
+          email: data.email || null,
+          block_id: data.blockId || null,
+          parking_slot: data.parkingSlot,
+          custom_customer_id: customId
+        }).eq("id", id).then(({ error: custErr }) => {
+          if (custErr) {
+            console.error("[Supabase] Error updating customer:", custErr);
+            return;
+          }
+
+          // 2. Delete existing vehicles of this customer (cascade handles subscriptions)
+          const oldVehIds = oldVehicles.map(ov => ov.id);
+          const deletePromise = oldVehIds.length > 0 
+            ? supabase.from("vehicles").delete().in("id", oldVehIds)
+            : Promise.resolve({ error: null });
+
+          deletePromise.then(({ error: delErr }) => {
+            if (delErr) {
+              console.error("[Supabase] Error deleting old vehicles:", delErr);
+              return;
+            }
+
+            // 3. Insert new vehicles
+            if (newVehicles.length > 0) {
+              const mappedVehs = newVehicles.map(v => {
+                const dbType = v.vehicle_type === "bike" ? "bike" : v.vehicle_type === "suv" ? "suv" : "car";
+                return {
+                  id: v.id,
+                  customer_id: v.customer_id,
+                  license_plate: v.license_plate,
+                  vehicle_type: dbType,
+                  make_model: `${v.make} ${v.model}`.trim(),
+                  color: v.color
+                };
+              });
+
+              supabase.from("vehicles").insert(mappedVehs).then(({ error: vehErr }) => {
+                if (vehErr) {
+                  console.error("[Supabase] Error inserting new vehicles:", vehErr);
+                  return;
+                }
+
+                // 4. Insert new subscriptions
+                const mappedSubs = newVehicles.map(v => ({
+                  id: generateUUID(),
+                  vehicle_id: v.id,
+                  plan_id: mapPlanId(v.plan_id),
+                  start_date: new Date().toISOString().split("T")[0],
+                  is_active: true
+                }));
+
+                supabase.from("subscriptions").insert(mappedSubs).then(({ error: subErr }) => {
+                  if (subErr) console.error("[Supabase] Error inserting subscriptions:", subErr);
+                });
+              });
+            }
+          });
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);
@@ -228,6 +356,14 @@ export const customerOps = {
 
       setStorageItem("sv_customers", newCustomers);
       setStorageItem("sv_vehicles", newVehicles);
+
+      // Background sync to Supabase (Postgres CASCADE handles vehicles/subscriptions)
+      if (isSupabaseConfigured) {
+        supabase.from("customers").delete().eq("id", customerId).then(({ error }) => {
+          if (error) console.error("[Supabase] Error deleting customer:", error);
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);

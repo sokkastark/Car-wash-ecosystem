@@ -1,6 +1,7 @@
 import { Apartment, Block, ComplexPlanPrice, SubscriptionPlan, Customer, Vehicle } from "./types";
-import { getStorageItem, setStorageItem, initializeMockDatabase } from "./database";
+import { getStorageItem, setStorageItem, initializeMockDatabase, generateUUID } from "./database";
 import { DEFAULT_APARTMENTS, DEFAULT_BLOCKS, DEFAULT_PLANS, DEMO_AGENCY_ID } from "./seeds";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const complexOps = {
   getApartments(): Apartment[] {
@@ -18,7 +19,7 @@ export const complexOps = {
     initializeMockDatabase();
     const apartments = getStorageItem<Apartment[]>("sv_apartments", []);
     const newApt: Apartment = {
-      id: `apt-${Date.now()}`,
+      id: generateUUID(),
       name,
       address: address || null,
       city: city || null,
@@ -26,6 +27,20 @@ export const complexOps = {
     };
     apartments.push(newApt);
     setStorageItem("sv_apartments", apartments);
+
+    // Background push to Supabase relational table
+    if (isSupabaseConfigured) {
+      supabase.from("apartments").insert([{
+        id: newApt.id,
+        agency_id: newApt.agency_id,
+        name: newApt.name,
+        address: newApt.address,
+        city: newApt.city
+      }]).then(({ error }) => {
+        if (error) console.error("[Supabase] Error inserting apartment:", error);
+      });
+    }
+
     return newApt;
   },
 
@@ -38,6 +53,18 @@ export const complexOps = {
     apartments[index].address = address || null;
     apartments[index].city = city || null;
     setStorageItem("sv_apartments", apartments);
+
+    // Background update in Supabase relational table
+    if (isSupabaseConfigured) {
+      supabase.from("apartments").update({
+        name,
+        address: address || null,
+        city: city || null
+      }).eq("id", id).then(({ error }) => {
+        if (error) console.error("[Supabase] Error updating apartment:", error);
+      });
+    }
+
     return apartments[index];
   },
 
@@ -45,12 +72,24 @@ export const complexOps = {
     initializeMockDatabase();
     const blocks = getStorageItem<Block[]>("sv_blocks", []);
     const newBlock: Block = {
-      id: `block-${Date.now()}`,
+      id: generateUUID(),
       apartment_id: apartmentId,
       name
     };
     blocks.push(newBlock);
     setStorageItem("sv_blocks", blocks);
+
+    // Background push to Supabase relational table
+    if (isSupabaseConfigured) {
+      supabase.from("blocks").insert([{
+        id: newBlock.id,
+        apartment_id: newBlock.apartment_id,
+        name: newBlock.name
+      }]).then(({ error }) => {
+        if (error) console.error("[Supabase] Error inserting block:", error);
+      });
+    }
+
     return newBlock;
   },
 
@@ -72,6 +111,13 @@ export const complexOps = {
       return c;
     });
     setStorageItem("sv_customers", newCustomers);
+
+    // Background delete from Supabase blocks table
+    if (isSupabaseConfigured) {
+      supabase.from("blocks").delete().eq("id", id).then(({ error }) => {
+        if (error) console.error("[Supabase] Error deleting block:", error);
+      });
+    }
 
     return true;
   },

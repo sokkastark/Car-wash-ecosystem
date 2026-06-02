@@ -10,6 +10,7 @@ import { financeOps } from "./financeOps";
 import { analyticsOps } from "./analyticsOps";
 import { inflowOps } from "./inflowOps";
 import { DEFAULT_PLANS } from "./seeds";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export { initializeMockDatabase } from "./database";
 
@@ -59,6 +60,14 @@ export const mockStorage = {
       setStorageItem("sv_blocks", newBlocks);
       setStorageItem("sv_customers", newCustomers);
       setStorageItem("sv_vehicles", newVehicles);
+
+      // Background delete from Supabase apartments table
+      if (isSupabaseConfigured) {
+        supabase.from("apartments").delete().eq("id", id).then(({ error }) => {
+          if (error) console.error("[Supabase] Error deleting apartment:", error);
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);
@@ -84,6 +93,14 @@ export const mockStorage = {
 
       const newWorkers = workers.filter(w => w.id !== id);
       setStorageItem("sv_workers", newWorkers);
+
+      // Background delete from Supabase workers table
+      if (isSupabaseConfigured) {
+        supabase.from("workers").delete().eq("id", id).then(({ error }) => {
+          if (error) console.error("[Supabase] Error deleting worker:", error);
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);

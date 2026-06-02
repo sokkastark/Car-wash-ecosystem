@@ -1,8 +1,9 @@
 import { Block, SubscriptionPlan, Customer, Vehicle } from "./types";
-import { getStorageItem, setStorageItem, initializeMockDatabase } from "./database";
+import { getStorageItem, setStorageItem, initializeMockDatabase, generateUUID, mapPlanId } from "./database";
 import { DEFAULT_BLOCKS, DEFAULT_PLANS, DEMO_AGENCY_ID, DEMO_APARTMENT_ID } from "./seeds";
 import { complexOps } from "./complexOps";
 import { financeOps } from "./financeOps";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const csvOps = {
   importCSVRows(rows: any[], fileName: string): boolean {
@@ -62,7 +63,7 @@ export const csvOps = {
         let blockId = blockMap.get(row.blockName.toLowerCase()) || null;
         if (!blockId && row.blockName) {
           const newBlock: Block = {
-            id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            id: generateUUID(),
             apartment_id: apartmentId,
             name: row.blockName
           };
@@ -101,7 +102,7 @@ export const csvOps = {
           }
         }
 
-        const customerId = `cust-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+        const customerId = generateUUID();
         const newCust: Customer = {
           id: customerId,
           agency_id: DEMO_AGENCY_ID,
@@ -142,7 +143,7 @@ export const csvOps = {
           }
         }
 
-        const vehicleId = `veh-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+        const vehicleId = generateUUID();
         const newVeh: Vehicle = {
           id: vehicleId,
           customer_id: customerId,
@@ -169,6 +170,63 @@ export const csvOps = {
         totalCount: rows.length,
         breakdown: complexImportCounts
       });
+
+      // Background bulk push to Supabase relational tables!
+      if (isSupabaseConfigured) {
+        (async () => {
+          try {
+            // 1. Bulk upsert blocks
+            const blocksToInsert = blocks.map(b => ({
+              id: b.id,
+              apartment_id: b.apartment_id,
+              name: b.name
+            }));
+
+            // 2. Bulk upsert customers
+            const customersToInsert = customers.map(c => ({
+              id: c.id,
+              agency_id: c.agency_id,
+              custom_customer_id: c.custom_customer_id,
+              name: c.name,
+              phone_number: c.phone_number,
+              email: c.email || null,
+              apartment_id: c.apartment_id,
+              block_id: c.block_id || null,
+              parking_slot: c.parking_slot
+            }));
+
+            // 3. Bulk upsert vehicles
+            const vehiclesToInsert = vehicles.map(v => {
+              const dbType = v.vehicle_type === "bike" ? "bike" : v.vehicle_type === "suv" ? "suv" : "car";
+              return {
+                id: v.id,
+                customer_id: v.customer_id,
+                license_plate: v.license_plate,
+                vehicle_type: dbType,
+                make_model: `${v.make} ${v.model}`.trim(),
+                color: v.color
+              };
+            });
+
+            // 4. Bulk upsert subscriptions
+            const subsToInsert = vehicles.map(v => ({
+              id: generateUUID(),
+              vehicle_id: v.id,
+              plan_id: mapPlanId(v.plan_id),
+              start_date: new Date().toISOString().split("T")[0],
+              is_active: true
+            }));
+
+            await supabase.from("blocks").upsert(blocksToInsert, { onConflict: "id" });
+            await supabase.from("customers").upsert(customersToInsert, { onConflict: "id" });
+            await supabase.from("vehicles").upsert(vehiclesToInsert, { onConflict: "id" });
+            await supabase.from("subscriptions").upsert(subsToInsert, { onConflict: "id" });
+            console.log("[CSV Onboarding] Background bulk sync to Supabase relational tables completed successfully!");
+          } catch (err) {
+            console.error("[CSV Onboarding] Background bulk sync failed:", err);
+          }
+        })();
+      }
 
       return true;
     } catch (e) {

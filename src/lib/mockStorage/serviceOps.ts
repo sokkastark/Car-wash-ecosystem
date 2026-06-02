@@ -2,6 +2,7 @@ import { DailyServiceLog, Complaint, Vehicle, Customer, Block, InteriorCleaningR
 import { getStorageItem, setStorageItem, initializeMockDatabase } from "./database";
 import { DEFAULT_VEHICLES, DEFAULT_CUSTOMERS, DEFAULT_APARTMENTS, DEFAULT_BLOCKS, DEFAULT_COMPLAINTS, DEMO_AGENCY_ID } from "./seeds";
 import { complexOps } from "./complexOps";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export const serviceOps = {
   getDailyServiceLogs(dateStr?: string): DailyServiceLog[] {
@@ -138,6 +139,26 @@ export const serviceOps = {
     });
     if (reqsChanged) {
       setStorageItem("sv_interior_requests", interiorReqs);
+    }
+
+    // Background push to Supabase relational table
+    if (isSupabaseConfigured) {
+      const dbStatus = status; // ENUM: pending, washed, skipped, missed
+      const dbReason = reason || null; // ENUM: owner_away, vehicle_not_present, lockout, bad_weather, other
+      const dbNotes = notes || null;
+      
+      supabase.from("daily_service_logs").upsert({
+        agency_id: DEMO_AGENCY_ID,
+        worker_id: workerId && workerId.length === 36 ? workerId : null,
+        vehicle_id: vehicleId,
+        log_date: dateStr,
+        status: dbStatus,
+        reason: dbReason,
+        notes: dbNotes,
+        marked_at: status !== "pending" ? timestamp : null
+      }, { onConflict: "vehicle_id, log_date" }).then(({ error }) => {
+        if (error) console.error("[Supabase] Error upserting daily service log:", error);
+      });
     }
 
     return true;

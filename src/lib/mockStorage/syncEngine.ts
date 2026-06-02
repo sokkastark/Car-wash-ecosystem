@@ -203,6 +203,160 @@ export async function pullFromSupabase(): Promise<{ success: boolean; hasData?: 
     return { success: false, error: "Supabase client is not configured. Run in mock state." };
   }
   try {
+    console.log("[SyncEngine] Pulling fresh relational database tables from Supabase...");
+    
+    // 1. Fetch all relational tables in parallel from Supabase
+    const [
+      { data: apartments, error: e1 },
+      { data: blocks, error: e2 },
+      { data: plans, error: e3 },
+      { data: workers, error: e4 },
+      { data: customers, error: e5 },
+      { data: vehicles, error: e6 },
+      { data: subs, error: e7 },
+      { data: logs, error: e8 }
+    ] = await Promise.all([
+      supabase.from("apartments").select("*"),
+      supabase.from("blocks").select("*"),
+      supabase.from("subscription_plans").select("*"),
+      supabase.from("workers").select("*"),
+      supabase.from("customers").select("*"),
+      supabase.from("vehicles").select("*"),
+      supabase.from("subscriptions").select("*"),
+      supabase.from("daily_service_logs").select("*")
+    ]);
+
+    let hasRelationalData = false;
+    if (!e1 && apartments && apartments.length > 0) {
+      hasRelationalData = true;
+    }
+
+    if (hasRelationalData) {
+      console.log("[SyncEngine] Live relational SQL data found in Supabase! Merging fresh database...");
+      const subMap = new Map((subs || []).map((s: any) => [s.vehicle_id, s.plan_id]));
+      const demoAptId = apartments![0].id;
+
+      const sv_apartments = apartments!.map((apt: any) => ({
+        id: apt.id,
+        agency_id: apt.agency_id,
+        name: apt.name,
+        address: apt.address,
+        city: apt.city
+      }));
+
+      const sv_blocks = (blocks || []).map((b: any) => ({
+        id: b.id,
+        apartment_id: b.apartment_id,
+        name: b.name
+      }));
+
+      const sv_plans = (plans || []).map((p: any) => ({
+        id: p.id,
+        agency_id: p.agency_id,
+        name: p.name,
+        recurrence: p.recurrence,
+        price_car: Number(p.price_car) || 0,
+        price_bike: Number(p.price_bike) || 0,
+        price_hatchback: Number(p.price_car) || 0,
+        price_sedan: Number(p.price_car) || 0,
+        price_suv: Number(p.price_car) || 0,
+        price_luxury: Number(p.price_car) || 0
+      }));
+
+      const sv_workers = (workers || []).map((w: any) => ({
+        id: w.id,
+        agency_id: w.agency_id,
+        name: w.name,
+        phone: w.phone,
+        role: w.role === "washer" ? "washer" : "supervisor",
+        is_active: w.is_active,
+        assigned_complex_ids: [demoAptId],
+        monthly_salary: w.role === "supervisor" ? 18000 : 14000,
+        salary_status: "pending",
+        attendance_today: "present"
+      }));
+
+      const sv_customers = (customers || []).map((c: any) => ({
+        id: c.id,
+        agency_id: c.agency_id,
+        custom_customer_id: c.custom_customer_id,
+        name: c.name,
+        phone_number: c.phone_number,
+        email: c.email,
+        apartment_id: c.apartment_id,
+        block_id: c.block_id,
+        flat_no: c.parking_slot ? c.parking_slot.replace(/[^\d]/g, "") : "101",
+        parking_slot: c.parking_slot,
+        join_date: "2026-05-01",
+        status: "active"
+      }));
+
+      const sv_vehicles = (vehicles || []).map((v: any) => {
+        const plan_id = subMap.get(v.id) || (plans && plans[0] ? plans[0].id : "plan-daily");
+        const firstWasher = (workers || []).find((w: any) => w.role === "washer");
+        return {
+          id: v.id,
+          customer_id: v.customer_id,
+          license_plate: v.license_plate,
+          vehicle_type: v.vehicle_type === "suv" ? "suv" : v.vehicle_type === "bike" ? "bike" : "car",
+          make: v.make_model ? v.make_model.split(" ")[0] : "Hyundai",
+          model: v.make_model ? v.make_model.split(" ").slice(1).join(" ") : "i20",
+          color: v.color || "White",
+          plan_id,
+          custom_price: null,
+          assigned_worker_id: firstWasher ? firstWasher.id : null,
+          interior_frequency: 0
+        };
+      });
+
+      const sv_daily_service_logs = (logs || []).map((l: any) => ({
+        id: l.id,
+        agency_id: l.agency_id,
+        worker_id: l.worker_id,
+        vehicle_id: l.vehicle_id,
+        log_date: l.log_date,
+        status: l.status,
+        reason: l.reason,
+        notes: l.notes,
+        marked_at: l.marked_at
+      }));
+
+      const dataToPush: Record<string, any> = {
+        sv_apartments,
+        sv_blocks,
+        sv_plans,
+        sv_workers,
+        sv_customers,
+        sv_vehicles,
+        sv_daily_service_logs
+      };
+
+      const SYNC_KEYS_ADDITIONAL = ["sv_complaints", "sv_upload_logs", "sv_expenses", "sv_trash", "sv_interior_requests", "sv_inflow_payments"];
+      SYNC_KEYS_ADDITIONAL.forEach(key => {
+        const existingVal = localStorage.getItem(key);
+        dataToPush[key] = existingVal ? JSON.parse(existingVal) : [];
+      });
+
+      // Save fresh data to local storage
+      Object.keys(dataToPush).forEach(key => {
+        localStorage.setItem(key, JSON.stringify(dataToPush[key]));
+      });
+
+      localStorage.setItem("sv_db_initialized_v6", "true");
+      localStorage.setItem("sv_last_cloud_pull", new Date().toISOString());
+
+      // Auto backup this snapshot in client_sync_snapshots table
+      const timestamp = new Date().toISOString();
+      await supabase
+        .from("client_sync_snapshots")
+        .upsert({ agency_id: DEMO_AGENCY_ID, data: dataToPush, updated_at: timestamp }, { onConflict: "agency_id" });
+
+      localStorage.setItem("sv_last_cloud_push", timestamp);
+      return { success: true, hasData: true };
+    }
+
+    // 2. Fallback to reading the client_sync_snapshots JSON snapshot if relational tables are empty
+    console.log("[SyncEngine] Relational tables are empty. Checking JSON snapshot as fallback...");
     const { data: record, error: fetchErr } = await supabase
       .from("client_sync_snapshots")
       .select("data, updated_at")
@@ -211,176 +365,25 @@ export async function pullFromSupabase(): Promise<{ success: boolean; hasData?: 
 
     if (fetchErr) throw fetchErr;
 
-    if (!record || !record.data || Object.keys(record.data).length === 0) {
-      // 1. Snapshot is empty. Let's dynamically query relational SQL tables to bootstrap it!
-      console.log("[SyncEngine] Snapshot is empty. Fetching relational tables from Supabase to bootstrap...");
-      try {
-        const [
-          { data: apartments },
-          { data: blocks },
-          { data: plans },
-          { data: workers },
-          { data: customers },
-          { data: vehicles },
-          { data: subs },
-          { data: logs }
-        ] = await Promise.all([
-          supabase.from("apartments").select("*"),
-          supabase.from("blocks").select("*"),
-          supabase.from("subscription_plans").select("*"),
-          supabase.from("workers").select("*"),
-          supabase.from("customers").select("*"),
-          supabase.from("vehicles").select("*"),
-          supabase.from("subscriptions").select("*"),
-          supabase.from("daily_service_logs").select("*")
-        ]);
-
-        if (apartments && apartments.length > 0) {
-          const subMap = new Map((subs || []).map((s: any) => [s.vehicle_id, s.plan_id]));
-          const demoAptId = apartments[0].id;
-
-          const sv_apartments = apartments.map((apt: any) => ({
-            id: apt.id,
-            agency_id: apt.agency_id,
-            name: apt.name,
-            address: apt.address,
-            city: apt.city
-          }));
-
-          const sv_blocks = (blocks || []).map((b: any) => ({
-            id: b.id,
-            apartment_id: b.apartment_id,
-            name: b.name
-          }));
-
-          const sv_plans = (plans || []).map((p: any) => ({
-            id: p.id,
-            agency_id: p.agency_id,
-            name: p.name,
-            recurrence: p.recurrence,
-            price_car: Number(p.price_car) || 0,
-            price_bike: Number(p.price_bike) || 0,
-            price_hatchback: Number(p.price_car) || 0,
-            price_sedan: Number(p.price_car) || 0,
-            price_suv: Number(p.price_car) || 0,
-            price_luxury: Number(p.price_car) || 0
-          }));
-
-          const sv_workers = (workers || []).map((w: any) => ({
-            id: w.id,
-            agency_id: w.agency_id,
-            name: w.name,
-            phone: w.phone,
-            role: w.role === "washer" ? "washer" : "supervisor",
-            is_active: w.is_active,
-            assigned_complex_ids: [demoAptId], // Automatically assign to the demo complex
-            monthly_salary: w.role === "supervisor" ? 18000 : 14000,
-            salary_status: "pending",
-            attendance_today: "present"
-          }));
-
-          const sv_customers = (customers || []).map((c: any) => ({
-            id: c.id,
-            agency_id: c.agency_id,
-            custom_customer_id: c.custom_customer_id,
-            name: c.name,
-            phone_number: c.phone_number,
-            email: c.email,
-            apartment_id: c.apartment_id,
-            block_id: c.block_id,
-            flat_no: c.parking_slot ? c.parking_slot.replace(/[^\d]/g, "") : "101",
-            parking_slot: c.parking_slot,
-            join_date: "2026-05-01",
-            status: "active"
-          }));
-
-          const sv_vehicles = (vehicles || []).map((v: any) => {
-            const plan_id = subMap.get(v.id) || (plans && plans[0] ? plans[0].id : "plan-daily");
-            const firstWasher = (workers || []).find((w: any) => w.role === "washer");
-            return {
-              id: v.id,
-              customer_id: v.customer_id,
-              license_plate: v.license_plate,
-              vehicle_type: v.vehicle_type === "suv" ? "suv" : v.vehicle_type === "bike" ? "bike" : "car",
-              make: v.make_model ? v.make_model.split(" ")[0] : "Hyundai",
-              model: v.make_model ? v.make_model.split(" ").slice(1).join(" ") : "i20",
-              color: v.color || "White",
-              plan_id,
-              custom_price: null,
-              assigned_worker_id: firstWasher ? firstWasher.id : null,
-              interior_frequency: 0
-            };
-          });
-
-          const sv_daily_service_logs = (logs || []).map((l: any) => ({
-            id: l.id,
-            agency_id: l.agency_id,
-            worker_id: l.worker_id,
-            vehicle_id: l.vehicle_id,
-            log_date: l.log_date,
-            status: l.status,
-            reason: l.reason,
-            notes: l.notes,
-            marked_at: l.marked_at
-          }));
-
-          const dataToPush: Record<string, any> = {
-            sv_apartments,
-            sv_blocks,
-            sv_plans,
-            sv_workers,
-            sv_customers,
-            sv_vehicles,
-            sv_daily_service_logs,
-            sv_complaints: [],
-            sv_upload_logs: [],
-            sv_expenses: [],
-            sv_trash: [],
-            sv_interior_requests: [],
-            sv_inflow_payments: []
-          };
-
-          // Save to local storage
-          Object.keys(dataToPush).forEach(key => {
-            localStorage.setItem(key, JSON.stringify(dataToPush[key]));
-          });
-
-          localStorage.setItem("sv_db_initialized_v6", "true");
-          localStorage.setItem("sv_last_cloud_pull", new Date().toISOString());
-
-          // Push snapshot so that it exists in the client_sync_snapshots table
-          console.log("[SyncEngine] Bootstrapped snapshot from relational tables. Uploading back to cloud...");
-          
-          const timestamp = new Date().toISOString();
-          await supabase
-            .from("client_sync_snapshots")
-            .insert([{ agency_id: DEMO_AGENCY_ID, data: dataToPush, updated_at: timestamp }]);
-
-          localStorage.setItem("sv_last_cloud_push", timestamp);
-          return { success: true, hasData: true };
+    if (record && record.data && Object.keys(record.data).length > 0) {
+      const cloudData = record.data;
+      Object.keys(cloudData).forEach(key => {
+        if (SYNC_KEYS.includes(key)) {
+          localStorage.setItem(key, JSON.stringify(cloudData[key]));
         }
-      } catch (bootstrapErr) {
-        console.error("[SyncEngine] Failed to bootstrap from relational tables:", bootstrapErr);
-      }
+      });
 
-      return { success: true, hasData: false };
+      localStorage.setItem("sv_db_initialized_v6", "true");
+      localStorage.setItem("sv_last_cloud_pull", new Date().toISOString());
+      if (record.updated_at) {
+        localStorage.setItem("sv_last_cloud_push", record.updated_at);
+      }
+      return { success: true, hasData: true };
     }
 
-    const cloudData = record.data;
-    Object.keys(cloudData).forEach(key => {
-      if (SYNC_KEYS.includes(key)) {
-        localStorage.setItem(key, JSON.stringify(cloudData[key]));
-      }
-    });
-
-    localStorage.setItem("sv_db_initialized_v6", "true");
-    localStorage.setItem("sv_last_cloud_pull", new Date().toISOString());
-    if (record.updated_at) {
-      localStorage.setItem("sv_last_cloud_push", record.updated_at);
-    }
-    return { success: true, hasData: true };
+    return { success: true, hasData: false };
   } catch (e: any) {
-    console.error("[SyncEngine] Supabase pull failed:", e);
+    console.error("[SyncEngine] pullFromSupabase failed:", e);
     return { success: false, error: e.message || String(e) };
   }
 }
