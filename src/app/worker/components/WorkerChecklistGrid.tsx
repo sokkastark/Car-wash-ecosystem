@@ -220,59 +220,39 @@ function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardPr
         style={{
           position: "relative",
           zIndex: 2,
-          padding: "16px 20px !important",
+          padding: "0 !important", // Removed default padding to allow edge-to-edge structure
           display: "flex",
-          gap: "16px",
-          alignItems: "center",
+          justifyContent: "space-between",
+          alignItems: "stretch", // Stretch to full height
           transform: `translateX(${swipeOffset}px)`,
           transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
       >
-        {/* Left Visual Avatar Cue - Bigger and More Prominent */}
-        <div
-          style={{
-            width: "58px",
-            height: "58px",
-            borderRadius: "18px",
-            background: visuals.bg,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+        {/* Left Side: Spacious Vehicle & Location Details */}
+        <div 
+          style={{ 
+            flex: 1, 
+            padding: "16px 18px", 
+            display: "flex", 
+            flexDirection: "column", 
             justifyContent: "center",
-            flexShrink: 0,
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)",
-            border: "1px solid rgba(255, 255, 255, 0.7)"
+            minWidth: 0 
           }}
-          title={visuals.label}
         >
-          <span style={{ fontSize: "1.65rem", lineHeight: 1.1 }}>{visuals.emoji}</span>
-          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: visuals.color, textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "1px" }}>
-            {visuals.label}
-          </span>
-        </div>
-
-        {/* Spacious Edge-to-Edge Vehicle Details */}
-        <div style={{ flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: "0.775rem", color: "#64748b", display: "block", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em", marginBottom: "3px" }}>
             {task.blockName} • Flat {task.slot}
           </span>
-          <strong style={{ fontSize: "1.25rem", fontFamily: "var(--font-title)", color: "#0f172a", display: "block", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+          <strong style={{ fontSize: "1.3rem", fontFamily: "var(--font-title)", color: "#0f172a", display: "block", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
             {task.license}
           </strong>
           <span style={{ fontSize: "0.85rem", color: "#475569", display: "block", marginTop: "2px" }}>
             {task.model} <span style={{ color: "#94a3b8", fontSize: "0.8rem", marginLeft: "4px" }}>({task.parkingSlot ? `Slot ${task.parkingSlot}` : "No Slot"})</span>
           </span>
 
-          {/* Bottom Badges & Status Row (Clean and Organized Below Vehicle Info) */}
+          {/* Bottom Badges Row */}
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", marginTop: "8px" }}>
-            {/* Real-time Status Badge */}
-            {task.status === "washed" && <span className="status-badge washed" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Washed</span>}
-            {task.status === "skipped" && <span className="status-badge skipped" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Skipped</span>}
-            {task.status === "missed" && <span className="status-badge missed" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Missed</span>}
-            {task.status === "pending" && <span className="status-badge pending" style={{ padding: "2px 8px", borderRadius: "6px", fontSize: "0.675rem", fontWeight: 700 }}>Pending</span>}
-            
             {task.status !== "pending" && task.markedAt && (
-              <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontFamily: "monospace", fontWeight: 600 }}>
+              <span style={{ fontSize: "0.7rem", color: "#64748b", background: "#f1f5f9", padding: "2px 8px", borderRadius: "6px", fontWeight: 600 }}>
                 at {formatMarkedTime(task.markedAt)}
               </span>
             )}
@@ -310,6 +290,40 @@ function SwipeableCard({ task, toggleStatus, formatMarkedTime }: SwipeableCardPr
               </span>
             )}
           </div>
+        </div>
+
+        {/* Right Side: Big Visual Cue Avatar Card overlapping Status Capsule */}
+        <div
+          style={{
+            width: "90px",
+            height: "90px",
+            borderRadius: "20px",
+            background: visuals.bg,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            margin: "10px 10px 10px 0", // Beautiful inset spacing from outer borders
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)",
+            border: "1px solid rgba(255, 255, 255, 0.7)",
+            position: "relative",
+            alignSelf: "center"
+          }}
+          title={visuals.label}
+        >
+          {/* Floating Status Capsule overlaps the top edge of the visual card */}
+          <div style={{ position: "absolute", top: "-10px", zIndex: 10 }}>
+            {task.status === "washed" && <span className="status-badge washed" style={{ padding: "3px 10px", borderRadius: "8px", fontSize: "0.65rem", fontWeight: 800, boxShadow: "0 2px 6px rgba(16, 185, 129, 0.15)" }}>Washed</span>}
+            {task.status === "skipped" && <span className="status-badge skipped" style={{ padding: "3px 10px", borderRadius: "8px", fontSize: "0.65rem", fontWeight: 800, boxShadow: "0 2px 6px rgba(245, 158, 11, 0.15)" }}>Skipped</span>}
+            {task.status === "missed" && <span className="status-badge missed" style={{ padding: "3px 10px", borderRadius: "8px", fontSize: "0.65rem", fontWeight: 800, boxShadow: "0 2px 6px rgba(100, 116, 139, 0.15)" }}>Missed</span>}
+            {task.status === "pending" && <span className="status-badge pending" style={{ padding: "3px 10px", borderRadius: "8px", fontSize: "0.65rem", fontWeight: 800, boxShadow: "0 2px 6px rgba(168, 85, 247, 0.15)" }}>Pending</span>}
+          </div>
+
+          <span style={{ fontSize: "2.1rem", lineHeight: 1 }}>{visuals.emoji}</span>
+          <span style={{ fontSize: "0.75rem", fontWeight: 800, color: visuals.color, textTransform: "uppercase", letterSpacing: "0.05em", marginTop: "4px" }}>
+            {visuals.label}
+          </span>
         </div>
       </div>
     </div>
