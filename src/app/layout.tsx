@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AutoUpdateChecker from "@/app/components/AutoUpdateChecker";
 
 export const metadata: Metadata = {
   title: "SV Carwash Operations Platform",
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <AutoUpdateChecker />
         <main className="min-h-screen relative overflow-x-hidden">
           {children}
         </main>
