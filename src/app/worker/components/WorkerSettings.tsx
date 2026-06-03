@@ -59,7 +59,7 @@ export default function WorkerSettings() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      alert("PWA installation is not supported or already installed. If you are on iOS Safari, please tap 'Share' and select 'Add to Home Screen'.");
+      alert("iOS does not support direct in-app installation. To install this app on your iPhone:\n\n1. In Safari: Tap the 'Share' icon (bottom menu) and select 'Add to Home Screen'.\n2. In Chrome/Opera: Tap the browser's 'Share' / 'Menu' icon (top/bottom) and select 'Add to Home Screen'.");
       return;
     }
     deferredPrompt.prompt();
