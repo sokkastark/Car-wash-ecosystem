@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AutoUpdateChecker from "@/app/components/AutoUpdateChecker";
+import SupabaseGuard from "@/app/components/SupabaseGuard";
 
 export const metadata: Metadata = {
   title: "SV Carwash Operations Platform",
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body>
         <AutoUpdateChecker />
         <main className="min-h-screen relative overflow-x-hidden">
-          {children}
+          <SupabaseGuard>
+            {children}
+          </SupabaseGuard>
         </main>
       </body>
     </html>
