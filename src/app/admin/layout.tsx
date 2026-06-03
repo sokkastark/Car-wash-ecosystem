@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { isSupabaseConfigured } from "@/lib/supabase";
+
 interface SidebarLinkProps {
   href: string;
   emoji: string;
@@ -88,8 +90,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <footer style={{ borderTop: "1px solid hsl(var(--border-muted))", paddingTop: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "hsl(var(--success))" }} />
-            <span style={{ fontSize: "0.85rem", color: "hsl(var(--text-secondary))" }}>Live Database Online</span>
+            <div style={{ 
+              width: "8px", 
+              height: "8px", 
+              borderRadius: "50%", 
+              background: isSupabaseConfigured ? "hsl(var(--success))" : "hsl(var(--warning))" 
+            }} />
+            <span style={{ fontSize: "0.85rem", color: "hsl(var(--text-secondary))" }}>
+              {isSupabaseConfigured ? "Cloud Sync: Connected (Supabase)" : "Mock Mode: Local Storage Only"}
+            </span>
           </div>
         </footer>
       </aside>
