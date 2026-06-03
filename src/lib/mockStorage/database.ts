@@ -57,6 +57,10 @@ export const setStorageItem = <T>(key: string, value: T) => {
       "sv_complex_plan_prices"
     ];
     if (isSupabaseConfigured && SYNC_KEYS.includes(key)) {
+      if (sessionStorage.getItem("sv_initial_cloud_pull_in_progress") === "true") {
+        console.warn(`[SyncEngine] Skipping auto-push for key "${key}" because a cloud pull is in progress.`);
+        return;
+      }
       if (syncDebounceTimer) {
         clearTimeout(syncDebounceTimer);
       }
@@ -147,8 +151,10 @@ export const initializeMockDatabase = (force = false) => {
     const pulledFlag = sessionStorage.getItem("sv_initial_cloud_pull_done");
     if (!pulledFlag) {
       sessionStorage.setItem("sv_initial_cloud_pull_done", "true");
+      sessionStorage.setItem("sv_initial_cloud_pull_in_progress", "true");
       import("./syncEngine").then(({ pullFromSupabase }) => {
         pullFromSupabase().then((res) => {
+          sessionStorage.removeItem("sv_initial_cloud_pull_in_progress");
           if (res.success && res.hasData) {
             console.log("[SyncEngine] Auto-pulled database snapshot from Supabase successfully!");
             window.dispatchEvent(new Event("db_cloud_sync_completed"));
@@ -159,9 +165,17 @@ export const initializeMockDatabase = (force = false) => {
             if (!localStorage.getItem("sv_db_initialized_v6")) {
               console.log("[SyncEngine] Cloud database is empty. Initializing with local seed data...");
               writeLocalSeeds();
+            } else {
+              console.log("[SyncEngine] Cloud database is empty. Proactively pushing local database snapshot...");
+              import("./syncEngine").then(({ pushToSupabase }) => {
+                pushToSupabase()
+                  .then(() => window.dispatchEvent(new Event("db_cloud_sync_completed")))
+                  .catch(err => console.error("[SyncEngine] Proactive push failed:", err));
+              });
             }
           }
         }).catch(err => {
+          sessionStorage.removeItem("sv_initial_cloud_pull_in_progress");
           console.error("[SyncEngine] Auto-pull failed:", err);
           // Fallback to local seeds if not initialized
           if (!localStorage.getItem("sv_db_initialized_v6")) {
@@ -171,6 +185,11 @@ export const initializeMockDatabase = (force = false) => {
       });
       return; // Stop execution here and await the database fetch outcome
     }
+  }
+
+  // If a pull is in progress, do not write seeds yet or run repairs
+  if (sessionStorage.getItem("sv_initial_cloud_pull_in_progress") === "true") {
+    return;
   }
 
   if (force || !localStorage.getItem("sv_db_initialized_v6")) {

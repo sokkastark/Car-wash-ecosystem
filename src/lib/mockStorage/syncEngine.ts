@@ -227,7 +227,7 @@ export async function pullFromSupabase(): Promise<{ success: boolean; hasData?: 
     ]);
 
     let hasRelationalData = false;
-    if (!e1 && apartments && apartments.length > 0) {
+    if (!e1 && apartments && apartments.length > 0 && customers && customers.length > 0) {
       hasRelationalData = true;
     }
 
